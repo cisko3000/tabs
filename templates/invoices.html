@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block log_time %}
+<script>
+	$(document).ready(function() {$("#contact").select2()});
+</script>
+<div style="width:300px">
+<form role="form" action="{{ url_for('create_invoice') }}" method="post">
+	<div class="form-group">
+		<label for="project">Create Invoice for:<small></small></label>
+		{{ create_invoice_form.contact }}
+	<button type="submit" class="btn btn-primary" style="float:right" id="start">Create</button>
+    </div>
+</form>
+</div>
+
+{% for invoice in invoices %}
+{% if loop.first %} <table class="table"><tr><th>ID</th><th>Amount</th><th>Paid</th></tr>{% endif %}
+<tr><td nowrap>{{ invoice.id }}</td><td nowrap>{{ invoice.amount }}</td><td>{{ entry.paid }}</td><td>{{entry.delta}}</td></tr>
+	{% if loop.last %} </table>{% endif %}
+{% else %}
+<tr><td colspan=3>No Invoices</td></tr>
+{% endfor %}
+
+
+{% endblock %}

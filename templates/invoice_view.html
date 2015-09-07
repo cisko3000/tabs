@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block log_time %}
+<div style="width:300px">
+<form role="form" action="{{ url_for('create_invoice_final') }}" method="post">
+	<div class="form-group">
+		<label for="created">Created<small></small></label>
+		{{ invoice_form.created }}
+    </div>
+	<div class="form-group">
+		<label for="paid">Bill To<small></small></label>
+		{{ invoice_form.email }}
+    </div>
+	<div class="form-group">
+		<label for="paid">Paid?<small></small></label>
+		{{ invoice_form.paid }}
+    </div>
+	{% for invoice_line in invoice_form.invoice_line %}
+	{% if loop.first %}<table class="table"><tr><th>Description</th><th>Quantity</th><th nowrap>Unit Price</th></tr> {%endif%}
+	<tr>
+		<td nowrap >{{ invoice_line.d_description(size=60) }}</td>
+		<td nowrap >{{ invoice_line.qty(style="text-align:right",size=7) }}</td>
+		<td nowrap >{{ invoice_line.unit_price(style="text-align:right",size=7) }}</td>
+	</tr>
+	{% if loop.last %}
+	<tr>
+		<td colspan=2>
+			<b class="pull-right">Total</b>
+		</td>
+		<td class="pull-right">
+			{{ invoice_form.amount(style="text-align:right",size=7) }}
+		</td>
+	</tr>
+	</table>{%endif%}
+	{% else %}
+	<i> No invoice lines </i>
+	{% endfor %}
+	<button type="submit" class="btn btn-primary" style="float:right" id="start">Create</button>
+</form>
+</div>
+
+
+
+{% endblock %}

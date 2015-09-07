@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block log_time %}
+<form role="form" action="{{ url_for('log_time') }}" method="post">
+	<div class="form-group">
+		<label for="name">Name<small></small></label>
+		{{ form.name }}
+    </div>
+	<div class="form-group">
+		<label for="email">Email<small></small></label>
+		{{ form.email }}
+    </div>
+	<div class="form-group">
+		<label for="notes">Notes<small>(optional)</small></label>
+		{{ form.notes }}
+    </div>
+	<button type="submit" class="btn btn-primary" style="float:right" id="start">Start</button>
+</form>
+{% endblock %}
+{% extends 'base.html' %}
+{% block content %}
+<h3>Upcoming Appointments</h3>
+<table>
+	<tr><th>Name</td><th>Time</th></tr>
+	{% for next_appt in upcoming_appointments %}
+	<tr><td>{{ next_appt.name }}</td><td>{{ next_appt.start.strftime('%x %X') }}</td></tr>
+	{% else %}
+	<tr><td>No upcoming appointments</td><td></td></tr>
+	{% endfor %}
+</table>
+<h3>Search</h3>
+<input type="text" name="sstr">
+<input type=date name="on_or_after">
+<input type=date name="on_or_before">
+<table>
+	<tr><th>Name</td><th>Time</th></tr>
+	{% for search_appt in search_appointments %}
+	<tr><td>{{ search.name }}</td><td>{{ search.start.strftime('%x %X') }}</td></tr>
+	{% endfor %}
+</table
+
+
+{% endblock %}

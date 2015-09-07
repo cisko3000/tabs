@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block log_time %}
+<script>
+	$(document).ready(function() {$("#project").select2()});
+</script>
+<div style="width:300px">
+<form role="form" action="{{ url_for('home') }}" method="post">
+	<div class="form-group" style="min-width:310px">
+		<label for="project">Project:<small></small></label>
+		{{ time_entry_form.project(xreadonly=True) }}
+	<button type="submit" class="btn btn-primary" style="float:right" id="start">{{ start_or_stop }}</button>
+    </div>
+</form>
+</div>
+
+{% for entry in entries %}
+{% if loop.first %} <table class="table">
+	<tr><th>Project</th><th>Start</th><th>Stop</th><th style="text-align:right">Hours</th></tr>
+{% endif %}
+	<tr><td nowrap>
+			{{ entry.project }}
+		</td>
+		<td nowrap>
+			{{ entry.start.strftime('%x %H:%M') }}
+		</td><td>
+			{% if entry.stop is not none %}{{ entry.stop.strftime('%x %H:%M') }} {% endif %}
+		</td><td style="text-align:right">
+			{% if entry.delta is not none %} {{ "{0:0.2f}".format(entry.delta)}} {% endif %}</td></tr>
+	{% if loop.last %} </table>{% endif %}
+{% endfor %}
+
+
+{% endblock %}
