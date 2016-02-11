@@ -1,0 +1,5 @@
+*.pyc
+true_config.py
+passenger_wsgi.py
+tmp
+
