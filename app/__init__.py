@@ -53,6 +53,12 @@ def create_app():
 	Bootstrap(app)
 	app.extensions['bootstrap']['cdns']["select2.js"] = WebCDN("//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.min.js")
 	app.extensions['bootstrap']['cdns']["select2.css"] = WebCDN("//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/css/select2.min.css")
+	app.extensions['bootstrap']['cdns']['cosmo'] = WebCDN("https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.5/cosmo/")
+	app.extensions['bootstrap']['cdns']['simplex'] = WebCDN("https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.5/simplex/")
+	app.extensions['bootstrap']['cdns']['cyborg'] = WebCDN("https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.5/cyborg/")
+	app.extensions['bootstrap']['cdns']['paper'] = WebCDN("https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.5/paper/")
+	app.extensions['bootstrap']['cdns']['sandstone'] = WebCDN("https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.5/sandstone/")
+
 	admin.add_view(ModelView(Contact,db.session))
 	admin.add_view(ModelView(TimeEntry,db.session))
 	admin.add_view(ModelView(Project,db.session))
@@ -180,7 +186,7 @@ def create_app():
 		#qry = qry.group_by(Score.some_group_column)
 		#for _res in qry.all():
 		#    print _res
-
+		#raise ValueError(entries)
 
 		#total = db.session.query(TimeEntry)
 		return render_template('home.html', time_entry_form=time_entry_form, entries = entries,

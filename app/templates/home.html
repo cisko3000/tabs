@@ -7,43 +7,86 @@
 
 
 {% block content %}
+
+<div class="container">
+	<div class="row">
+
+
+
+
+		<div class="col-md-5">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<div class="panel-title">Timer</div>
+				</div>
+				<div class="panel-body">
+					<form class="" role="form" action="{{ url_for('home') }}" method="post">
+						<div class="form-group">
+							<label for="project">Project:</label>
+							{{ time_entry_form.project(xreadonly=True) }}
+					    </div>
+							<button type="submit" class="btn btn-primary pull-right"  id="start">{{ start_or_stop }}</button>
+					</form>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-5">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<div class="panel-title">Tasks</div>
+				</div>
+				<div class="panel-body">
+					<p>No Tasks</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="container-fluid">
+<div class="row">
+	<div class="col-sm-12">
+		<div xclass="panel panel-default">
+			<!--<div class="panel-heading">
+				<div class="panel-title">Current Week:</div>
+			</div>-->
+			Current Week:
+			{% if not entries %}
+			<table class="table"><tr><td><p><i>No entries</i></p></td></tr></table>
+			<!--<div class="panel-body"><p><i>No entries</i></p></div>-->
+			{% else %}
+			<table class="table">
+				<tr><th>Project</th><th>Start</th><th>Stop</th><th style="text-align:right">Hours</th></tr>
+				{% for entry in entries %}
+				<tr>
+					<td nowrap>
+					{{ entry.project }}
+					</td>
+					<td nowrap>
+						{{ entry.start.strftime('%x %H:%M') }}
+					</td>
+					<td>
+					{% if entry.stop is not none %}{{ entry.stop.strftime('%x %H:%M') }} {% endif %}
+					</td>
+					<td style="text-align:right">
+					{% if entry.delta is not none %} {{ "{0:0.2f}".format(entry.delta)}} {% endif %}</td>
+				</tr>
+				{% endfor %}
+				<tr>
+					<td colspan=3 style="text-align:right">{{ total_today }}</td>
+					<td  style="text-align:right">{{ week_total }}</td>
+				</tr>
+			</table>
+			{% endif %}
+		</div>
+	</div>
+</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
 <script>
 	$(document).ready(function() {$("#project").select2()});
 </script>
-<div style="width:320px">
-<form role="form" action="{{ url_for('home') }}" method="post">
-	<div class="form-group" style="min-width:310px">
-		<label for="project">Project:<small></small></label>
-		{{ time_entry_form.project(xreadonly=True) }}
-	<button type="submit" class="btn btn-primary" style="float:right" id="start">{{ start_or_stop }}</button>
-    </div>
-</form>
-</div>
-{{entires}}
-{% if entries == ''   %}
-	<i>No entires for this week yet.</i>
-{% endif %}
-{% for entry in entries %}
-{% if loop.first %} <table class="table">
-	<tr><th>Project</th><th>Start</th><th>Stop</th><th style="text-align:right">Hours</th></tr>
-{% endif %}
-	<tr><td nowrap>
-			{{ entry.project }}
-		</td>
-		<td nowrap>
-			{{ entry.start.strftime('%x %H:%M') }}
-		</td><td>
-			{% if entry.stop is not none %}{{ entry.stop.strftime('%x %H:%M') }} {% endif %}
-		</td><td style="text-align:right">
-			{% if entry.delta is not none %} {{ "{0:0.2f}".format(entry.delta)}} {% endif %}</td>
-		</tr>
-	{% if loop.last %}
-		<tr>
-			<td colspan=3 style="text-align:right">{{ total_today }}</td>
-			<td  style="text-align:right">{{ week_total }}</td>
-		</tr>
-	</table>{% endif %}
-{% endfor %}
-
-
 {% endblock %}
