@@ -1,5 +1,12 @@
 {% extends 'base.html' %}
-{% block log_time %}
+
+{% block navbar %}
+{{ super() }}
+{% endblock navbar %}
+
+
+
+{% block content %}
 <script>
 	$(document).ready(function() {$("#project").select2()});
 </script>
