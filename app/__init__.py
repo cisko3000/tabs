@@ -73,7 +73,7 @@ def create_app():
 	def login():
 		form = LoginForm(request.form)
 		if form.validate_on_submit():
-			if form.pw.data =='thetastate' and form.username.data == 'admin':
+			if form.pw.data == app.config['PASSWORD'] and form.username.data == app.config['USERNAME']:
 				user = User(1)
 				login_user(user)
 				next = request.args.get('next')
