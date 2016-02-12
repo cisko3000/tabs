@@ -120,7 +120,9 @@ def create_app():
 					db.session.commit()
 					return 'success'
 		return render_template('new_contact.html', form=form)
-	
+	@app.route('/tabs_admin', methods=['GET']) 
+	def tabs_admin():
+		return render_template('tabs_admin.html')
 	@app.route('/', methods=['GET','POST'])
 	@login_required
 	def home():

@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block navbar %}
+{{ super() }}
+{% endblock navbar %}
+
+
+
+{% block content %}
+
+<div class="container">
+	<div class="row">
+		<div class="col-md-offset-2  col-md-8">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<label for="sstr" class="panel-title">Search All:</label>
+				<!--</div>
+				<div class="panel-body">-->
+					<form class="" role="form" action="{{ url_for('home') }}" method="post">
+						<div class="input-group">
+							<!--<label for="sstr">Search All:</label>-->
+							<input type="text" class="form-control" name="sstr">
+						    <span class="input-group-btn">
+								<button type="button" class="btn btn-secondary"  id="start">
+									<span class="glyphicon glyphicon-search"></span>
+								</button>
+							</span>
+					    </div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-3">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<div class="panel-title">Contacts <button class="text-invert pull-right">New <span class=" glyphicon glyphicon-plus"></span></button></div>
+				</div>
+				<div class="panel-body">
+					<p>Contacts go here</p>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-3">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<div class="panel-title">Projects <button class="text-invert pull-right">New <span class=" glyphicon glyphicon-plus"></span></button></div>
+				</div>
+				<div class="panel-body">
+					<p>Projects go here</p>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-4">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<div class="panel-title">Last 20 TimeEntries</div>
+				</div>
+				<div class="panel-body">
+					<p>Last 20 TimeEntires go here</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="container-fluid">
+<div class="row">
+	<div class="col-sm-12">
+	</div>
+</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+	
+</script>
+{% endblock %}
