@@ -36,6 +36,7 @@ from wtforms import TextField, PasswordField, BooleanField
 from wtforms.validators import Required, Email, EqualTo, NoneOf, ValidationError
 from mod_auth.forms import LoginForm
 
+
 # create greg app
 def create_app():
 	app = Flask(__name__, static_url_path='')
@@ -48,7 +49,9 @@ def create_app():
 	
 	# Import modules 
 	from app.mod_invoice.controllers import mod_invoice as invoice_module
+	from app.mod_api.api import api_mod as api_module
 	app.register_blueprint(invoice_module)
+	app.register_blueprint(api_module)
 	
 	Bootstrap(app)
 	app.extensions['bootstrap']['cdns']["select2.js"] = WebCDN("//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0/js/select2.min.js")

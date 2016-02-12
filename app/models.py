@@ -35,6 +35,11 @@ class Project(db.Model):
 		return '%s: %s' % (self.contact, self.name)
 	
 class Contact(db.Model):
+	def __init__(self, *args):
+		if args and len(args) == 3:
+			self.name = args[0]
+			self.email = args[1]
+			self.notes = args[2]
 	id = db.Column(db.Integer, primary_key= True)
 	name = db.Column(db.String(120))
 	email = db.Column(db.String(120))
