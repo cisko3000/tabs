@@ -22,9 +22,25 @@
       		<!-- Nav links for toggling -->
       		<div class="collapse navbar-collapse" id="menu-collapse">
 				<ul class="nav navbar-nav">
-					<li class="active"><a href="{{ url_for('home') }}">home</a></li>
-					<li><a href="{{ url_for('admin') }}">admin</a></li>
-					<li><a href="{{ url_for('tabs_invoice.invoices') }}">invoices</a></li>
+					<li {% if request.url_rule.endpoint == "home" %} class="active" {% endif %}><a href="{{ url_for('home') }}">home</a></li>
+					<li {% if request.url_rule.endpoint == "tabs_invoice.invoices" %} class="active" {% endif %}><a href="{{ url_for('tabs_invoice.invoices') }}">invoices</a></li>
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="dropdown" aria-haspopup="true" aria-expanded="false">admin <span class="caret"></span>
+						</a>
+						<ul class="dropdown-menu">
+							<li {% if request.url_rule.endpoint == "admin" %} class="active" {% endif %}><a href="{{ url_for('admin') }}">
+								admin		</a></li>
+							<li {% if request.url_rule.endpoint == "contact.index_view'" %} class="active" {% endif %}><a href="{{ url_for('contact.index_view') }}">
+								contacts	</a></li>
+							<li {% if request.url_rule.endpoint == "project.index_view'" %} class="active" {% endif %}><a href="{{ url_for('project.index_view') }}">
+								projects	</a></li>
+							<li {% if request.url_rule.endpoint == "timentry.index_view'" %} class="active" {% endif %}><a href="{{ url_for('timeentry.index_view') }}">
+								time entries</a></li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="nav navbar-right">
+					<li><a href="{{ url_for('logout') }}">logout</a></li>
 				</ul>
 			</div>
 		</div>

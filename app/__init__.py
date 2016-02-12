@@ -27,14 +27,14 @@ from contextlib import closing
 from datetime import datetime, timedelta, time
 
 from flask.ext.login import LoginManager, UserMixin
-from flask.ext.login import login_required, login_user, current_user
+from flask.ext.login import login_required, login_user, logout_user, current_user
 
 from flask.ext.wtf import Form
 from wtforms import TextField, PasswordField, BooleanField
 
 # Import Form validators
 from wtforms.validators import Required, Email, EqualTo, NoneOf, ValidationError
-
+from mod_auth.forms import LoginForm
 
 # create greg app
 def create_app():
@@ -80,20 +80,21 @@ def create_app():
 	def load_user(user_id):
 		return User(1)
 
-	class LoginForm(Form):
-		username = TextField('Username',[Required()])
-		pw = PasswordField('Password', [Required()])
 	@app.route('/login',methods=['GET','POST'])
 	def login():
 		form = LoginForm(request.form)
 		if form.validate_on_submit():
-			if form.pw.data == app.config['PASSWORD'] and form.username.data == app.config['USERNAME']:
+			if form.password.data == app.config['PASSWORD'] and form.email.data == app.config['USER_EMAIL']:
 				user = User(1)
 				login_user(user)
 				next = request.args.get('next')
 				flash('Logged in')
 				return redirect(next or url_for('home'))
-		return render_template('login.html', form=form)
+		return render_template('auth/login.html', form=form)
+	@app.route('/logout', methods=['GET'])
+	def logout():
+		logout_user()
+		return redirect('/login')
 
 	@app.before_request
 	def check_for_maintenance():
