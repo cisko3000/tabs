@@ -35,11 +35,6 @@ class Project(db.Model):
 		return '%s: %s' % (self.contact, self.name)
 	
 class Contact(db.Model):
-	def __init__(self, *args):
-		if args and len(args) == 3:
-			self.name = args[0]
-			self.email = args[1]
-			self.notes = args[2]
 	id = db.Column(db.Integer, primary_key= True)
 	name = db.Column(db.String(120))
 	email = db.Column(db.String(120))
@@ -47,7 +42,7 @@ class Contact(db.Model):
 	#project_id = db.Column(db.Integer, db.ForeignKey('Project.id'))
 	#project = db.relationship("Project")
 	def __repr__(self):
-		return self.name + ' (' + self.email + ')'
+		return '%s (%s)' % (str(self.name), str(self.email))
 	def __str__(self):
 		return self.name
 

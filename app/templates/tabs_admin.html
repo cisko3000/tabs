@@ -13,8 +13,30 @@ $(function(){
 	//$SCRIPT_ROOT+"/somepath";
 	function ContactsViewModel() {
 		var self = this;
+		self.contactsURI = $SCRIPT_ROOT+'/api/contacts';
 		self.contacts = ko.observableArray();
-		self.contacts([
+
+		self.ajax = function(uri, method, data) {
+			var request = {
+				url : uri,
+				type: method,
+				contentType: "application/json",
+				accepts: "application/json",
+				cache: false,
+				dataType: 'json',
+				data: JSON.stringify(data)
+				/*,
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader("Authorization", "Basic " + btoa(self.username+":" + self.password));
+				}
+				error: function(jqXHR) {
+					console.log("ajax error " + jqXHR.status);
+				}*/
+			}
+			return $.ajax(request);
+		}
+		// This is what it looked like before ajax(..).done(function);
+		/*self.contacts([
 			{
 				name:ko.observable('name'),
 				email:ko.observable('some email'),
@@ -25,16 +47,100 @@ $(function(){
 				email:ko.observable('some email'),
 				notes:ko.observable('some notes')
 			}
-			]);
+			]);*/
 		self.beginAddContact = function(contact) {
-			alert('add :' + contact.name);
+			$('#addContact').modal('show');
 		}
 		self.beginEdit = function(contact) {
-			alert('edit :' + contact.name);
+			editContactViewModel.setContact(contact);
+			$('#edit').modal('show');
+		}
+		self.edit = function(contact, data) {
+			self.ajax(task.uri(), 'PUT', data).done(function(res) {
+				self.updateContact(contact, res.contact);
+			});
+		}
+		self.updateContact = function(contact, newContact) {
+			var i = self.contacts.indexOf(contact);
+			self.contacts()[i].name(newContact.name);
+			self.contacts()[i].email(newContact.email);
+			self.contacts()[i].notes(newContact.notes);
+		}
+		
+		self.ajax(self.contactsURI, 'GET').done(function(data) {
+			console.log(data);
+			//self.contacts({});
+			for (var i = 0; i < data.length; i++) {
+				self.contacts.push({
+					name: 	ko.observable(data[i].name),
+					email: 	ko.observable(data[i].email),
+					notes: 	ko.observable(data[i].notes)
+				});
+			}
+		});
+		self.add = function(contact) {
+			self.ajax(self.contactsURI, 'POST', contact).done(function (data) {
+				console.log('data');
+				console.log(data);
+				self.contacts.push({
+					name: ko.observable(data.name),
+					email: ko.observable(data.email),
+					notes: ko.observable(data.notes)
+				});
+			});
 		}
 	}
-	ko.applyBindings(new ContactsViewModel(), $('#contact_container')[0]);
+	function AddContactViewModel() {
+		var self = this;
+		self.name = ko.observable();
+		self.email = ko.observable();
+		self.notes = ko.observable();
 
+		self.addContact = function() {
+			$('#addContact').modal('hide');
+			// When addContact is executed, add details to contacts list
+			// then reset the dialog values to empty strings.
+			contactsViewModel.add({
+				contact_name: self.name(),
+				contact_email: self.email(),
+				contact_notes: self.notes()
+
+			});
+			self.name('');
+			self.email('');
+			self.notes('');
+		}
+	}
+	function EditContactViewModel() {
+		var self = this;
+		self.name = ko.observable();
+		self.email = ko.observable();
+		self.notes = ko.observable();
+		self.done = ko.observable();
+
+		// When setContact is called, init self fields and show edit button modal
+		self.setContact = function(contact) {
+			self.contact = contact;
+			self.name(contact.name());
+			self.email(contact.email());
+			self.notes(contact.notes());
+			self.done(task.done());
+			$('edit').modal('show'); 
+		}
+		self.editContact = function() {
+			$('#edit').modal('hide');
+			contactsViewModel.edit(self.contact, {
+				name: self.name(),
+				email:self.email(),
+				notes:self.notes(),
+				done: self.done()
+			});
+		}
+	}
+	var contactsViewModel = new ContactsViewModel();
+	var addContactViewModel = new AddContactViewModel();
+	ko.applyBindings(contactsViewModel, $('#contact_container')[0]);
+	ko.applyBindings(addContactViewModel, $('#addContact')[0]);
 });
 </script>
 {% endblock %}
@@ -113,10 +219,42 @@ $(function(){
 </div>
 
 <div class="container-fluid">
-<div class="row">
-	<div class="col-sm-12">
+	<div class="row">
+		<div class="col-sm-12">
+		</div>
 	</div>
 </div>
+
+<div id="addContact" class="modal fade" tabindex="1" role="dialog" aria-labelledby="addDialogLabel" aria-hidden="true">
+	<div class="modal-dialog">
+	<div class="modal-dialog modal-content">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+		<h3 id="addDialogLabel">Add Contact</h3>
+	</div>
+	<div class="modal-body">
+		<form class="form-horizontal">
+			<div class="control-group">
+				<label class="control-label" for="inputContactName">Contact Name</label>
+				<input class="form-control" data-bind="value: name" type="text" id="inputContactName">
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="inputContactEmail">Email</label>
+				<input class="form-control" data-bind="value: email" type="text" id="inputContactEmail">
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="inputContactName">Notes</label>
+				<textarea class="form-control" data-bind="value: notes" id="inputContactNotes"></textarea>
+			</div>
+		</form>
+		<div class="modal-footer">
+			<button data-bind="click: addContact" class="btn btn-primary pull-right">Add Contact</button>
+			<button data-dismiss="modal" aria-hidden="true" class="btn btn-secondary">Cancel</button>&nbsp;&nbsp;&nbsp;
+		</div>
+	</div>
+	</div>
+	</div>
 </div>
+
 {% endblock %}
 

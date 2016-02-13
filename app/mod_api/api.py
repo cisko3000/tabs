@@ -2,7 +2,7 @@ from flask import Flask, Blueprint, jsonify
 from flask_restful import Resource, Api, reqparse, abort
 from flask_restful import fields, marshal_with
 from flask.ext.login import login_required
-from models import Contact, Project
+from app.models import Contact, Project
 from .. import db
 
 api_mod = Blueprint('api', __name__, url_prefix = '/api')
@@ -56,12 +56,23 @@ class ContactList(Resource):
 	@marshal_with(resource_fields)
 	def get(self):
 		return db.session.query(Contact).all()
+	@marshal_with(resource_fields)
 	def post(self):
 		args = parser.parse_args()
-		nc = Contact(args['contact_name'],args['contact_email'],args['contact_notes'])
+		nc = Contact()
+		nc.name  = args['contact_name']
+		nc.email = args['contact_email']
+		nc.notes = args['contact_notes']
 		db.session.add(nc)
 		db.session.commit()
-		return nc, 201
+		return nc , 201
+	@marshal_with(resource_fields)
+	def put(self):
+		args = parser.parse_args()
+		contact = db.session.query(Contact).first()
+		contact.name = args['contact_name']
+		db.session.flush
+		return contact
 
 class ProjectList(Resource):
 	decorators = [login_required]

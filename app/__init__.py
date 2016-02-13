@@ -11,8 +11,8 @@ from flask_admin.base import MenuLink
 from flask_admin.contrib.sqla import ModelView
 # from flask.ext.sqlalchemy import SQLAlchemy
 # Models
-from models import *
-from models import db
+from app.models import *
+from app.models import db
 # Flask-WTF
 from flask.ext.wtf import Form
 from wtforms.ext.sqlalchemy.orm import model_form
