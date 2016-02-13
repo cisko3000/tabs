@@ -9,6 +9,7 @@ api_mod = Blueprint('api', __name__, url_prefix = '/api')
 api = Api(api_mod)
 
 resource_fields = {
+	'id': fields.Integer,
 	'name': fields.String,
 	'email': fields.String,
 	'notes': fields.String,

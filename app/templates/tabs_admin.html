@@ -4,7 +4,40 @@
 {{ super() }}
 {% endblock navbar %}
 
+{% block scripts %}
+{{ super() }}
+<script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js"></script>
+<script>
+$(function(){
+	$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+	//$SCRIPT_ROOT+"/somepath";
+	function ContactsViewModel() {
+		var self = this;
+		self.contacts = ko.observableArray();
+		self.contacts([
+			{
+				name:ko.observable('name'),
+				email:ko.observable('some email'),
+				notes:ko.observable('some notes')
+			},
+			{
+				name:ko.observable('name'),
+				email:ko.observable('some email'),
+				notes:ko.observable('some notes')
+			}
+			]);
+		self.beginAddContact = function(contact) {
+			alert('add :' + contact.name);
+		}
+		self.beginEdit = function(contact) {
+			alert('edit :' + contact.name);
+		}
+	}
+	ko.applyBindings(new ContactsViewModel(), $('#contact_container')[0]);
 
+});
+</script>
+{% endblock %}
 
 {% block content %}
 
@@ -34,14 +67,26 @@
 </div>
 <div class="container-fluid">
 	<div class="row">
-		<div class="col-md-3">
-			<div class="panel panel-default">
+		<div class="col-md-4">
+			<div class="panel panel-default" id="contact_container">
 				<div class="panel-heading">
-					<div class="panel-title">Contacts <button class="text-invert pull-right">New <span class=" glyphicon glyphicon-plus"></span></button></div>
+					<div class="panel-title">Contacts <button data-bind="click: beginAddContact" class="text-invert pull-right">New <span class=" glyphicon glyphicon-plus"></span></button></div>
 				</div>
-				<div class="panel-body">
-					<p>Contacts go here</p>
-				</div>
+				<!--<div class="panel-body">
+				</div>-->
+				<table class="table">
+					<tbody>
+					<!-- ko foreach: contacts -->
+					<tr>
+						<td data-bind="text: name" >Peter Griffin</td>
+						<td data-bind="text: email">peter@griffin.com</td>
+						<td data-bind="text: notes">Some notes</td>
+						<td><span data-bind="click: $parent.beginEdit" class="glyphicon glyphicon-pencil"> </span></td>
+						<td><span data-bind="click: $parent.beginEdit" class="glyphicon glyphicon-trash" > </span></td>
+					</tr>
+					<!-- /ko -->
+				</tbody>
+				</table>
 			</div>
 		</div>
 		<div class="col-md-3">
@@ -75,9 +120,3 @@
 </div>
 {% endblock %}
 
-{% block scripts %}
-{{ super() }}
-<script>
-	
-</script>
-{% endblock %}
