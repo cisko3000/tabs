@@ -15,8 +15,9 @@ resource_fields = {
 	'notes': fields.String,
 	#'Contact': fields.List,
 	# takes an endpoint name and generates a URL for that endpoint in the response
-	# useful for paging
-	'uri': fields.Url('new_contact')
+	# useful for paging, or to remove objects from db
+	#'uri': fields.Url('api/contact/%s' % int())
+	'uri': fields.Url('api.contactlist')
 }
 def abort_if_dne(model_type, model_id):
 	if not db.session.query(model_type).get(model_id):
@@ -34,6 +35,14 @@ class TabsContact(Resource):
 	def get(self, contact_id):
 		abort_if_dne(Contact, contact_id)
 		return db.session.query(Contact).get(contact_id)
+	@marshal_with(resource_fields)
+	def delete(self, contact_id):
+		abort_if_dne(Contact, contact_id)
+		to_remove = db.session.query(Contact).get(contact_id)
+		db.session.remove(to_remove)
+		db.session.flush
+		return 201
+
 		
 class TabsProject(Resource):
 	decorators = [login_required]

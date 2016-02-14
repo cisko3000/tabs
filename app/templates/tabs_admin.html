@@ -14,6 +14,7 @@ $(function(){
 	function ContactsViewModel() {
 		var self = this;
 		self.contactsURI = $SCRIPT_ROOT+'/api/contacts';
+		self.contactURI = $SCRIPT_ROOT+'/api/contact/';
 		self.contacts = ko.observableArray();
 
 		self.ajax = function(uri, method, data) {
@@ -65,16 +66,19 @@ $(function(){
 			self.contacts()[i].name(newContact.name);
 			self.contacts()[i].email(newContact.email);
 			self.contacts()[i].notes(newContact.notes);
+			self.contacts()[i].id(newContact.id);
 		}
-		
+
 		self.ajax(self.contactsURI, 'GET').done(function(data) {
 			console.log(data);
 			//self.contacts({});
+			
 			for (var i = 0; i < data.length; i++) {
 				self.contacts.push({
 					name: 	ko.observable(data[i].name),
 					email: 	ko.observable(data[i].email),
-					notes: 	ko.observable(data[i].notes)
+					notes: 	ko.observable(data[i].notes),
+					id: 	ko.observable(data[i].id)
 				});
 			}
 		});
@@ -85,8 +89,14 @@ $(function(){
 				self.contacts.push({
 					name: ko.observable(data.name),
 					email: ko.observable(data.email),
-					notes: ko.observable(data.notes)
+					notes: ko.observable(data.notes),
+					id: ko.observable(data.id)
 				});
+			});
+		}
+		self.remove = function(contact) {
+			self.ajax(self.contactURI+contact.id(), 'DELETE' ).done(function() {
+				self.contacts.remove(contact);
 			});
 		}
 	}
@@ -125,10 +135,10 @@ $(function(){
 			self.email(contact.email());
 			self.notes(contact.notes());
 			self.done(task.done());
-			$('edit').modal('show'); 
+			$('editContact').modal('show'); 
 		}
 		self.editContact = function() {
-			$('#edit').modal('hide');
+			$('#editContact').modal('hide');
 			contactsViewModel.edit(self.contact, {
 				name: self.name(),
 				email:self.email(),
@@ -187,8 +197,8 @@ $(function(){
 						<td data-bind="text: name" >Peter Griffin</td>
 						<td data-bind="text: email">peter@griffin.com</td>
 						<td data-bind="text: notes">Some notes</td>
-						<td><span data-bind="click: $parent.beginEdit" class="glyphicon glyphicon-pencil"> </span></td>
-						<td><span data-bind="click: $parent.beginEdit" class="glyphicon glyphicon-trash" > </span></td>
+						<td><input data-bind="text: id" type="hidden"><span data-bind="click: $parent.beginEdit" style="cursor:pointer" class="glyphicon glyphicon-pencil"> </span></td>
+						<td><span data-bind="click: $parent.beginEdit" style="cursor:pointer" class="glyphicon glyphicon-trash" > </span></td>
 					</tr>
 					<!-- /ko -->
 				</tbody>
@@ -255,6 +265,35 @@ $(function(){
 	</div>
 	</div>
 </div>
-
+<div id="editContact" class="modal fade" tabindex="1" role="dialog" aria-labelledby="editDialogLabel" aria-hidden="true">
+	<div class="modal-dialog">
+	<div class="modal-dialog modal-content">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+		<h3 id="addDialogLabel">Edit Contact</h3>
+	</div>
+	<div class="modal-body">
+		<form class="form-horizontal">
+			<div class="control-group">
+				<label class="control-label" for="inputContactName">Contact Name</label>
+				<input class="form-control" data-bind="value: name" type="text" id="inputContactName">
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="inputContactEmail">Email</label>
+				<input class="form-control" data-bind="value: email" type="text" id="inputContactEmail">
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="inputContactName">Notes</label>
+				<textarea class="form-control" data-bind="value: notes" id="inputContactNotes"></textarea>
+			</div>
+		</form>
+		<div class="modal-footer">
+			<button data-bind="click: addContact" class="btn btn-primary pull-right">Save</button>
+			<button data-dismiss="modal" aria-hidden="true" class="btn btn-secondary">Cancel</button>&nbsp;&nbsp;&nbsp;
+		</div>
+	</div>
+	</div>
+	</div>
+</div>
 {% endblock %}
 
