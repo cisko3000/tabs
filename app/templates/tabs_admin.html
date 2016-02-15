@@ -57,8 +57,9 @@ $(function(){
 			$('#edit').modal('show');
 		}
 		self.edit = function(contact, data) {
-			self.ajax(contact.uri(), 'PUT', data).done(function(res) {
-				self.updateContact(contact, res.contact);
+			self.ajax(self.contactURI+contact.id(), 'PUT', data).done(function(res) {
+				console.log(res)
+				self.updateContact(contact, res);
 			});
 		}
 		self.updateContact = function(contact, newContact) {
@@ -126,7 +127,7 @@ $(function(){
 		self.name = ko.observable();
 		self.email = ko.observable();
 		self.notes = ko.observable();
-		self.done = ko.observable();
+		self.id = ko.observable();
 
 		// When setContact is called, init self fields and show edit button modal
 		self.setContact = function(contact) {
@@ -134,15 +135,16 @@ $(function(){
 			self.name(contact.name());
 			self.email(contact.email());
 			self.notes(contact.notes());
+			self.id(contact.id());
 			$('#editContact').modal('show'); 
 		}
 		self.editContact = function() {
 			$('#editContact').modal('hide');
 			contactsViewModel.edit(self.contact, {
-				name: self.name(),
-				email:self.email(),
-				notes:self.notes(),
-				done: self.done()
+				contact_name: self.name(),
+				contact_email:self.email(),
+				contact_notes:self.notes(),
+				contact_id: self.id()
 			});
 		}
 	}
@@ -199,7 +201,7 @@ $(function(){
 						<td data-bind="text: email">peter@griffin.com</td>
 						<td data-bind="text: notes">Some notes</td>
 						<td><input data-bind="text: id" type="hidden"><span data-bind="click: $parent.beginEdit" style="cursor:pointer" class="glyphicon glyphicon-pencil"> </span></td>
-						<td><span xdata-bind="click: $parent.beginEdit" style="cursor:pointer" class="glyphicon glyphicon-trash" > </span></td>
+						<td><span data-bind="click: $parent.remove" style="cursor:pointer" class="glyphicon glyphicon-trash" > </span></td>
 					</tr>
 					<!-- /ko -->
 				</tbody>
@@ -276,6 +278,7 @@ $(function(){
 	<div class="modal-body">
 		<form class="form-horizontal">
 			<div class="control-group">
+				<input type="hidden" data-bind="value: id"></input>
 				<label class="control-label" for="inputContactName">Contact Name</label>
 				<input class="form-control" data-bind="value: name" type="text" id="inputContactName">
 			</div>
@@ -289,7 +292,7 @@ $(function(){
 			</div>
 		</form>
 		<div class="modal-footer">
-			<button data-bind="click: addContact" class="btn btn-primary pull-right">Save</button>
+			<button data-bind="click: editContact" class="btn btn-primary pull-right">Save</button>
 			<button data-dismiss="modal" aria-hidden="true" class="btn btn-secondary">Cancel</button>&nbsp;&nbsp;&nbsp;
 		</div>
 	</div>

@@ -28,6 +28,7 @@ parser = reqparse.RequestParser()
 parser.add_argument('contact_name',  type=str, help='Contact Name')
 parser.add_argument('contact_email', type=str, help='Contact Email')
 parser.add_argument('contact_notes', type=str, help='Contact Notes')
+parser.add_argument('contact_id', type=int, help='Contact ID')
 
 # Single Resources
 class TabsContact(Resource):
@@ -38,10 +39,21 @@ class TabsContact(Resource):
 	@marshal_with(resource_fields)
 	def delete(self, contact_id):
 		abort_if_dne(Contact, contact_id)
-		to_remove = db.session.query(Contact).get(contact_id)
-		db.session.remove(to_remove)
-		db.session.flush
-		return 201
+		to_del = Contact.query.get(contact_id)
+		db.session.delete(to_del)
+		db.session.commit()
+		return []
+	@marshal_with(resource_fields)
+	def put(self, contact_id):
+		abort_if_dne(Contact, contact_id)
+		args = parser.parse_args()
+		c = Contact.query.get(contact_id)
+		print(args['contact_name'])
+		c.name = args['contact_name']
+		c.email = args['contact_email']
+		c.notes = args['contact_notes']
+		db.session.commit()
+		return c
 
 		
 class TabsProject(Resource):
@@ -65,6 +77,7 @@ class ContactList(Resource):
 	@marshal_with(resource_fields)
 	def get(self):
 		return db.session.query(Contact).all()
+
 	@marshal_with(resource_fields)
 	def post(self):
 		args = parser.parse_args()
@@ -75,13 +88,6 @@ class ContactList(Resource):
 		db.session.add(nc)
 		db.session.commit()
 		return nc , 201
-	@marshal_with(resource_fields)
-	def put(self):
-		args = parser.parse_args()
-		contact = db.session.query(Contact).first()
-		contact.name = args['contact_name']
-		db.session.flush
-		return contact
 
 class ProjectList(Resource):
 	decorators = [login_required]
