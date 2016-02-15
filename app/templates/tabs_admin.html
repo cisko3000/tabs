@@ -57,7 +57,7 @@ $(function(){
 			$('#edit').modal('show');
 		}
 		self.edit = function(contact, data) {
-			self.ajax(task.uri(), 'PUT', data).done(function(res) {
+			self.ajax(contact.uri(), 'PUT', data).done(function(res) {
 				self.updateContact(contact, res.contact);
 			});
 		}
@@ -134,8 +134,7 @@ $(function(){
 			self.name(contact.name());
 			self.email(contact.email());
 			self.notes(contact.notes());
-			self.done(task.done());
-			$('editContact').modal('show'); 
+			$('#editContact').modal('show'); 
 		}
 		self.editContact = function() {
 			$('#editContact').modal('hide');
@@ -149,12 +148,14 @@ $(function(){
 	}
 	var contactsViewModel = new ContactsViewModel();
 	var addContactViewModel = new AddContactViewModel();
+	var editContactViewModel = new EditContactViewModel();
 	ko.applyBindings(contactsViewModel, $('#contact_container')[0]);
 	ko.applyBindings(addContactViewModel, $('#addContact')[0]);
+	ko.applyBindings(editContactViewModel, $('#editContact')[0]);
 });
 </script>
 {% endblock %}
-
+{% block title %}TABS - Time And Billing System  {% endblock %}
 {% block content %}
 
 <div class="container">
@@ -198,7 +199,7 @@ $(function(){
 						<td data-bind="text: email">peter@griffin.com</td>
 						<td data-bind="text: notes">Some notes</td>
 						<td><input data-bind="text: id" type="hidden"><span data-bind="click: $parent.beginEdit" style="cursor:pointer" class="glyphicon glyphicon-pencil"> </span></td>
-						<td><span data-bind="click: $parent.beginEdit" style="cursor:pointer" class="glyphicon glyphicon-trash" > </span></td>
+						<td><span xdata-bind="click: $parent.beginEdit" style="cursor:pointer" class="glyphicon glyphicon-trash" > </span></td>
 					</tr>
 					<!-- /ko -->
 				</tbody>
