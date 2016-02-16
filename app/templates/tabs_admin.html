@@ -9,23 +9,133 @@
 <script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js"></script>
 <script>
 $(function(){
+	// Constructors
+	var Contact = function(name,id) {
+			this.name = name;
+			this.id = id;
+		}
 	$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 	//$SCRIPT_ROOT+"/somepath";
+	var request = {
+		url : '',
+		type: '',
+		contentType: "application/json",
+		accepts: "application/json",
+		cache: false,
+		dataType: 'json',
+		data: ''
+	};
+	function ProjectsViewModel() {
+		var self = this;
+		self.projectsURI = $SCRIPT_ROOT+'/api/projects';
+		self.projectURI = $SCRIPT_ROOT+'/api/project/';
+		self.projects = ko.observableArray();
+		self.ajax = function(uri, method, data) {
+			var localRequest = request;
+			localRequest.url = uri;
+			localRequest.method = method;
+			localRequest.data = JSON.stringify(data);
+			return $.ajax(localRequest);
+		}
+		self.beginAddProject = function(project) {
+			$('#addProject').modal('show');
+		}
+		self.add = function(project) {
+			self.ajax(self.projectsURI, 'POST', project).done(function (data) {
+				self.contacts.push({
+					contact: ko.observable(data.contact),
+					name: ko.observable(data.name),
+					notes: ko.observable(data.notes),
+					id: ko.observable(data.id)
+				});
+			});
+		}
+		self.beginEdit = function(project) {
+			editProjectViewModel.setProject(project);
+			$('#editProject').modal('show');
+		}
+		self.edit = function(project, data) {
+			self.ajax(self.projectURI+project.id(),'PUT',data).done(function(res) {
+				self.updateProject(project, res);
+			});
+		}
+		self.updateProject = function(project, newProject) {
+			var i = self.projects.indexOf(project);
+			self.projects()[i].contact(newProject.contact);
+			self.projects()[i].name(newProject.name);
+		}
+		self.ajax(self.projectsURI, 'GET').done(function(data) {
+			//self.contacts({});
+			for (var i = 0; i < data.length; i++) {
+				self.projects.push({
+					contact: 	ko.observable(data[i].name),
+					name: 	ko.observable(data[i].email),
+					notes: 	ko.observable(data[i].notes),
+					total: 	ko.observable(77),
+					id: 	ko.observable(data[i].id)
+				});
+			}	
+		})
+	}
+	function AddProjectViewModel() {
+		var self = this;
+		self.availableContacts = ko.observableArray();
+		self.contact = ko.observable();
+		self.name = ko.observable();
+		self.notes = ko.observable();
+		self.total = ko.observable();
+
+		self.addProject = function() {
+			$('#addProject').modal('hide');
+			// When addContact is executed, add details to contacts list
+			// then reset the dialog values to empty strings.
+			projectsViewModel.add({
+				project_name: self.name(),
+				project_contact: self.contact(),
+				project_notes: self.notes()
+
+			});
+			self.name('');
+			self.contact('');
+			self.notes('');
+		}
+	}
+	function EditProjectViewModel() {
+		var self = this;
+		self.contact = ko.observable();
+		self.name = ko.observable();
+		self.notes = ko.observable();
+		self.id = ko.observable;
+		// When setContact is called, init self fields and show edit button modal
+		self.setProject = function(project) {
+			self.project = project;
+			self.contact(project.contact());
+			self.name(project.name());
+			self.notes(project.notes());
+			self.id(project.id());
+			$('#editContact').modal('show'); 
+		}
+		self.editProject = function() {
+			$('#editProject').modal('hide');
+			projectsViewModel.edit(self.project, {
+				project_name: self.contact(),
+				project_email:self.name(),
+				project_notes:self.notes(),
+				project_id: self.id()
+			});
+		}
+	}
 	function ContactsViewModel() {
 		var self = this;
 		self.contactsURI = $SCRIPT_ROOT+'/api/contacts';
 		self.contactURI = $SCRIPT_ROOT+'/api/contact/';
 		self.contacts = ko.observableArray();
-
 		self.ajax = function(uri, method, data) {
-			var request = {
-				url : uri,
-				type: method,
-				contentType: "application/json",
-				accepts: "application/json",
-				cache: false,
-				dataType: 'json',
-				data: JSON.stringify(data)
+			var localRequest = request;
+			localRequest.url = uri;
+			localRequest.method = method;
+			localRequest.data = JSON.stringify(data);
+
 				/*,
 				beforeSend: function (xhr) {
 					xhr.setRequestHeader("Authorization", "Basic " + btoa(self.username+":" + self.password));
@@ -33,22 +143,8 @@ $(function(){
 				error: function(jqXHR) {
 					console.log("ajax error " + jqXHR.status);
 				}*/
-			}
-			return $.ajax(request);
+			return $.ajax(localRequest);
 		}
-		// This is what it looked like before ajax(..).done(function);
-		/*self.contacts([
-			{
-				name:ko.observable('name'),
-				email:ko.observable('some email'),
-				notes:ko.observable('some notes')
-			},
-			{
-				name:ko.observable('name'),
-				email:ko.observable('some email'),
-				notes:ko.observable('some notes')
-			}
-			]);*/
 		self.beginAddContact = function(contact) {
 			$('#addContact').modal('show');
 		}
@@ -58,7 +154,6 @@ $(function(){
 		}
 		self.edit = function(contact, data) {
 			self.ajax(self.contactURI+contact.id(), 'PUT', data).done(function(res) {
-				console.log(res)
 				self.updateContact(contact, res);
 			});
 		}
@@ -71,9 +166,7 @@ $(function(){
 		}
 
 		self.ajax(self.contactsURI, 'GET').done(function(data) {
-			console.log(data);
-			//self.contacts({});
-			
+			addProjectViewModel.availableContacts.removeAll();
 			for (var i = 0; i < data.length; i++) {
 				self.contacts.push({
 					name: 	ko.observable(data[i].name),
@@ -81,12 +174,12 @@ $(function(){
 					notes: 	ko.observable(data[i].notes),
 					id: 	ko.observable(data[i].id)
 				});
+				addProjectViewModel.availableContacts().push(new Contact(data[i].name,data[i].id));
 			}
+			console.log(addProjectViewModel.availableContacts());
 		});
 		self.add = function(contact) {
 			self.ajax(self.contactsURI, 'POST', contact).done(function (data) {
-				console.log('data');
-				console.log(data);
 				self.contacts.push({
 					name: ko.observable(data.name),
 					email: ko.observable(data.email),
@@ -148,12 +241,21 @@ $(function(){
 			});
 		}
 	}
+	// Contacts
 	var contactsViewModel = new ContactsViewModel();
 	var addContactViewModel = new AddContactViewModel();
 	var editContactViewModel = new EditContactViewModel();
-	ko.applyBindings(contactsViewModel, $('#contact_container')[0]);
+	ko.applyBindings(contactsViewModel, $('#contacts_container')[0]);
 	ko.applyBindings(addContactViewModel, $('#addContact')[0]);
 	ko.applyBindings(editContactViewModel, $('#editContact')[0]);
+
+	// Projects
+	var projectsViewModel = new ProjectsViewModel();
+	var addProjectViewModel = new AddProjectViewModel();
+	var editProjectViewModel = new EditProjectViewModel();
+	ko.applyBindings(projectsViewModel, $('#projects_container')[0]);
+	ko.applyBindings(addProjectViewModel, $('#addProject')[0]);
+	ko.applyBindings(editProjectViewModel, $('#editProject')[0]);
 });
 </script>
 {% endblock %}
@@ -187,7 +289,7 @@ $(function(){
 <div class="container-fluid">
 	<div class="row">
 		<div class="col-md-4">
-			<div class="panel panel-default" id="contact_container">
+			<div class="panel panel-default" id="contacts_container">
 				<div class="panel-heading">
 					<div class="panel-title">Contacts <button data-bind="click: beginAddContact" class="text-invert pull-right">New <span class=" glyphicon glyphicon-plus"></span></button></div>
 				</div>
@@ -209,13 +311,28 @@ $(function(){
 			</div>
 		</div>
 		<div class="col-md-3">
-			<div class="panel panel-default">
+			<div class="panel panel-default" id="projects_container"> 
 				<div class="panel-heading">
-					<div class="panel-title">Projects <button class="text-invert pull-right">New <span class=" glyphicon glyphicon-plus"></span></button></div>
+					<div class="panel-title">Projects <button data-bind="click: beginAddProject" class="text-invert pull-right">New <span class=" glyphicon glyphicon-plus"></span></button></div>
 				</div>
-				<div class="panel-body">
-					<p>Projects go here</p>
-				</div>
+				<table class="table">
+					<tbody>
+						<!-- ko foreach: projects -->
+						<tr>
+							<td data-bind="text: contact">contact here</td>
+							<td data-bind="text: name">Project name here</td>
+							<td data-bind="text: notes">notes</td>
+							<td data-bind="text: total" class="text-right">Total hours</td>
+							<td>
+								<input data-bind="text: id" type="hidden"><span data-bind="click: $parent.beginEdit" style="cursor:pointer" class="glyphicon glyphicon-pencil"> </span>
+							</td>
+							<td>
+								<span data-bind="click: $parent.remove" style="cursor:pointer" class="glyphicon glyphicon-trash" > </span>
+							</td>
+						</tr>
+						<!-- /ko -->
+					</tbody>
+				</table>
 			</div>
 		</div>
 		<div class="col-md-4">
@@ -238,6 +355,8 @@ $(function(){
 	</div>
 </div>
 
+
+<!-- Contact Modals -->
 <div id="addContact" class="modal fade" tabindex="1" role="dialog" aria-labelledby="addDialogLabel" aria-hidden="true">
 	<div class="modal-dialog">
 	<div class="modal-dialog modal-content">
@@ -293,6 +412,77 @@ $(function(){
 		</form>
 		<div class="modal-footer">
 			<button data-bind="click: editContact" class="btn btn-primary pull-right">Save</button>
+			<button data-dismiss="modal" aria-hidden="true" class="btn btn-secondary">Cancel</button>&nbsp;&nbsp;&nbsp;
+		</div>
+	</div>
+	</div>
+	</div>
+</div>
+
+
+
+<!-- Project Modals -->
+<div id="addProject" class="modal fade" tabindex="1" role="dialog" aria-labelledby="addDialogLabel" aria-hidden="true">
+	<div class="modal-dialog">
+	<div class="modal-dialog modal-content">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+		<h3 id="addDialogLabel">Add Project</h3>
+	</div>
+	<div class="modal-body">
+		<form class="form-horizontal">
+			<div class="control-group">
+				<label class="control-label" for="inputContactName">Project Contact</label>
+				<select class="form-control" data-bind="
+				options: availableContacts,
+				optionsText: 'contactName',
+				optionsValue: 'contactID',
+				value: contact,
+				optionsCaption: 'Select Contact' ">
+				</select>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="inputContactEmail">Project Name</label>
+				<input class="form-control" data-bind="value: name" type="text">
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="inputContactName">Notes</label>
+				<textarea class="form-control" data-bind="value: notes" id="inputContactNotes"></textarea>
+			</div>
+		</form>
+		<div class="modal-footer">
+			<button data-bind="click: addProject" class="btn btn-primary pull-right">Add Project</button>
+			<button data-dismiss="modal" aria-hidden="true" class="btn btn-secondary">Cancel</button>&nbsp;&nbsp;&nbsp;
+		</div>
+	</div>
+	</div>
+	</div>
+</div>
+<div id="editProject" class="modal fade" tabindex="1" role="dialog" aria-labelledby="editDialogLabel" aria-hidden="true">
+	<div class="modal-dialog">
+	<div class="modal-dialog modal-content">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+		<h3 id="addDialogLabel">Edit Project</h3>
+	</div>
+	<div class="modal-body">
+		<form class="form-horizontal">
+			<div class="control-group">
+				<input type="hidden" data-bind="value: id"></input>
+				<label class="control-label" for="inputContactName">Project Contact</label>
+
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="inputContactEmail">Project Name</label>
+				<input class="form-control" data-bind="value: name" type="text">
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="inputContactName">Notes</label>
+				<textarea class="form-control" data-bind="value: notes"></textarea>
+			</div>
+		</form>
+		<div class="modal-footer">
+			<button data-bind="click: editProject" class="btn btn-primary pull-right">Save</button>
 			<button data-dismiss="modal" aria-hidden="true" class="btn btn-secondary">Cancel</button>&nbsp;&nbsp;&nbsp;
 		</div>
 	</div>
