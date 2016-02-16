@@ -38,6 +38,7 @@ $(function(){
 			return $.ajax(localRequest);
 		}
 		self.beginAddProject = function(project) {
+			//addProjectViewModel.availableContacts(addProjectViewModel.availableContacts);
 			$('#addProject').modal('show');
 		}
 		self.add = function(project) {
@@ -79,6 +80,7 @@ $(function(){
 	}
 	function AddProjectViewModel() {
 		var self = this;
+		//self.availableContacts = ko.observableArray();
 		self.availableContacts = ko.observableArray();
 		self.contact = ko.observable();
 		self.name = ko.observable();
@@ -166,7 +168,7 @@ $(function(){
 		}
 
 		self.ajax(self.contactsURI, 'GET').done(function(data) {
-			addProjectViewModel.availableContacts.removeAll();
+			//addProjectViewModel.availableContacts.removeAll();
 			for (var i = 0; i < data.length; i++) {
 				self.contacts.push({
 					name: 	ko.observable(data[i].name),
@@ -174,7 +176,7 @@ $(function(){
 					notes: 	ko.observable(data[i].notes),
 					id: 	ko.observable(data[i].id)
 				});
-				addProjectViewModel.availableContacts().push(new Contact(data[i].name,data[i].id));
+				addProjectViewModel.availableContacts.push(new Contact(data[i].name,data[i].id));
 			}
 			console.log(addProjectViewModel.availableContacts());
 		});
@@ -435,8 +437,8 @@ $(function(){
 				<label class="control-label" for="inputContactName">Project Contact</label>
 				<select class="form-control" data-bind="
 				options: availableContacts,
-				optionsText: 'contactName',
-				optionsValue: 'contactID',
+				optionsText: 'name',
+				optionsValue: 'id',
 				value: contact,
 				optionsCaption: 'Select Contact' ">
 				</select>
