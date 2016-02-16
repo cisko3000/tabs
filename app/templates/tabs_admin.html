@@ -67,10 +67,12 @@ $(function(){
 		}
 		self.ajax(self.projectsURI, 'GET').done(function(data) {
 			//self.contacts({});
+			console.log(data);
 			for (var i = 0; i < data.length; i++) {
 				self.projects.push({
-					contact: 	ko.observable(data[i].name),
-					name: 	ko.observable(data[i].email),
+					contact: 	ko.observable(data[i].contact),
+					contact_id: 	ko.observable(data[i].contact_id),
+					name: 	ko.observable(data[i].name),
 					notes: 	ko.observable(data[i].notes),
 					total: 	ko.observable(77),
 					id: 	ko.observable(data[i].id)
@@ -104,18 +106,22 @@ $(function(){
 	}
 	function EditProjectViewModel() {
 		var self = this;
-		self.contact = ko.observable();
+		self.availableContacts = ko.observableArray();
+		//self.contact = ko.observable();
+		self.contact_id = ko.observable();
 		self.name = ko.observable();
 		self.notes = ko.observable();
-		self.id = ko.observable;
+		self.id = ko.observable();
 		// When setContact is called, init self fields and show edit button modal
 		self.setProject = function(project) {
 			self.project = project;
-			self.contact(project.contact());
+			self.availableContacts = addProjectViewModel.availableContacts;
+			//self.contact(project.contact_id());
+			self.contact_id(project.contact_id());
 			self.name(project.name());
 			self.notes(project.notes());
 			self.id(project.id());
-			$('#editContact').modal('show'); 
+			$('#editProject').modal('show'); 
 		}
 		self.editProject = function() {
 			$('#editProject').modal('hide');
@@ -178,7 +184,7 @@ $(function(){
 				});
 				addProjectViewModel.availableContacts.push(new Contact(data[i].name,data[i].id));
 			}
-			console.log(addProjectViewModel.availableContacts());
+			//console.log(addProjectViewModel.availableContacts());
 		});
 		self.add = function(contact) {
 			self.ajax(self.contactsURI, 'POST', contact).done(function (data) {
@@ -321,7 +327,10 @@ $(function(){
 					<tbody>
 						<!-- ko foreach: projects -->
 						<tr>
-							<td data-bind="text: contact">contact here</td>
+							<td>
+								<input data-bind="text: contact_id" type="hidden">
+								<span data-bind="text: contact">contact here</span>
+							</td>
 							<td data-bind="text: name">Project name here</td>
 							<td data-bind="text: notes">notes</td>
 							<td data-bind="text: total" class="text-right">Total hours</td>
@@ -465,14 +474,19 @@ $(function(){
 	<div class="modal-dialog modal-content">
 	<div class="modal-header">
 		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-		<h3 id="addDialogLabel">Edit Project</h3>
+		<h3 id="editDialogLabel">Edit Project</h3>
 	</div>
 	<div class="modal-body">
 		<form class="form-horizontal">
 			<div class="control-group">
 				<input type="hidden" data-bind="value: id"></input>
-				<label class="control-label" for="inputContactName">Project Contact</label>
-
+				<select class="form-control" data-bind="
+				options: availableContacts,
+				optionsText: 'name',
+				optionsValue: 'id',
+				value: contact_id,
+				optionsCaption: 'Select Contact' ">
+				</select>
 			</div>
 			<div class="control-group">
 				<label class="control-label" for="inputContactEmail">Project Name</label>

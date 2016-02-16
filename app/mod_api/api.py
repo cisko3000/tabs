@@ -8,16 +8,24 @@ from .. import db
 api_mod = Blueprint('api', __name__, url_prefix = '/api')
 api = Api(api_mod)
 
-resource_fields = {
+contact_fields = {
 	'id': fields.Integer,
 	'name': fields.String,
 	'email': fields.String,
 	'notes': fields.String,
-	#'Contact': fields.List,
-	# takes an endpoint name and generates a URL for that endpoint in the response
-	# useful for paging, or to remove objects from db
-	#'uri': fields.Url('api/contact/%s' % int())
 	'uri': fields.Url('api.contactlist')
+}
+project_fields = {
+	'id': fields.Integer,
+	'contact': fields.String,
+	'contact_id': fields.String,
+	'name': fields.String,
+	'notes': fields.String,
+	'uri': fields.Url('api.contactlist')	
+}
+time_fields = {
+	'start' : fields.String,
+	'stop' : fields.String
 }
 def abort_if_dne(model_type, model_id):
 	if not db.session.query(model_type).get(model_id):
@@ -32,18 +40,18 @@ parser.add_argument('contact_id', type=int, help='Contact ID')
 
 # Single Resources
 class TabsContact(Resource):
-	@marshal_with(resource_fields)
+	@marshal_with(contact_fields)
 	def get(self, contact_id):
 		abort_if_dne(Contact, contact_id)
 		return db.session.query(Contact).get(contact_id)
-	@marshal_with(resource_fields)
+	@marshal_with(contact_fields)
 	def delete(self, contact_id):
 		abort_if_dne(Contact, contact_id)
 		to_del = Contact.query.get(contact_id)
 		db.session.delete(to_del)
 		db.session.commit()
 		return []
-	@marshal_with(resource_fields)
+	@marshal_with(contact_fields)
 	def put(self, contact_id):
 		abort_if_dne(Contact, contact_id)
 		args = parser.parse_args()
@@ -58,13 +66,13 @@ class TabsContact(Resource):
 		
 class TabsProject(Resource):
 	decorators = [login_required]
-	@marshal_with(resource_fields)
+	@marshal_with(project_fields)
 	def get(self, project_id):
 		abort_if_dne(Project, contact_id)
 		return db.session.query(Project).get(project_id)
 
 class TabsTimeEntry(Resource):
-	@marshal_with(resource_fields)
+	@marshal_with(time_fields)
 	def get(self, contact_id):
 		abort_if_dne(TimeEntry, time_entry_id)
 		return db.session.query(TimeEntry).get(time_entry_id)
@@ -74,11 +82,11 @@ class TabsTimeEntry(Resource):
 
 class ContactList(Resource):
 	decorators = [login_required]
-	@marshal_with(resource_fields)
+	@marshal_with(contact_fields)
 	def get(self):
 		return db.session.query(Contact).all()
 
-	@marshal_with(resource_fields)
+	@marshal_with(contact_fields)
 	def post(self):
 		args = parser.parse_args()
 		nc = Contact()
@@ -91,13 +99,13 @@ class ContactList(Resource):
 
 class ProjectList(Resource):
 	decorators = [login_required]
-	@marshal_with(resource_fields)
+	@marshal_with(project_fields)
 	def get(self):
-		return db.session.query(Project).all()
+		return db.session.query(Project).join(Contact).all()
 
 class TimeEntryList(Resource):
 	decorators = [login_required]
-	@marshal_with(resource_fields)
+	@marshal_with(time_fields)
 	def get(self):
 		return db.session.query(TimeEntry).all()
 
