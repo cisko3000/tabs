@@ -249,6 +249,31 @@ $(function(){
 			});
 		}
 	}
+
+	function EntriesViewModel() {
+		var self = this;
+		self.entriesURI = $SCRIPT_ROOT+'/api/entries';
+		self.entryURI = $SCRIPT_ROOT+'/api/entry/';
+		self.entries = ko.observableArray();
+		self.ajax = function(uri, method, data) {
+			var localRequest = request;
+			localRequest.url = uri;
+			localRequest.method = method;
+			localRequest.data = JSON.stringify(data);
+			return $.ajax(localRequest);
+		}
+		self.ajax(self.entriesURI, 'GET').done(function(data) {
+			console.log('entries');
+			console.log(data);
+			for (var i = 0; i < data.length; i++) {
+				self.entries.push({
+					project_name: 	ko.observable(data[i].name),
+					start: 	ko.observable(data[i].email),
+					stop: 	ko.observable(data[i].notes)
+				});
+			}
+		});
+	}
 	// Contacts
 	var contactsViewModel = new ContactsViewModel();
 	var addContactViewModel = new AddContactViewModel();
@@ -264,6 +289,10 @@ $(function(){
 	ko.applyBindings(projectsViewModel, $('#projects_container')[0]);
 	ko.applyBindings(addProjectViewModel, $('#addProject')[0]);
 	ko.applyBindings(editProjectViewModel, $('#editProject')[0]);
+
+	// TimeEntry
+	var entriesViewModel = new EntriesViewModel();
+	ko.applyBindings(entriesViewModel, $('#entries_container')[0]);
 });
 </script>
 {% endblock %}
@@ -347,13 +376,21 @@ $(function(){
 			</div>
 		</div>
 		<div class="col-md-4">
-			<div class="panel panel-default">
+			<div class="panel panel-default" id="entries_container">
 				<div class="panel-heading">
 					<div class="panel-title">Last 20 TimeEntries</div>
 				</div>
-				<div class="panel-body">
-					<p>Last 20 TimeEntires go here</p>
-				</div>
+				<table class="table">
+					<tbody>
+					<!-- ko foreach: entries -->
+					<tr>
+						<td data-bind="text: project_name"></td>
+						<td data-bind="text: start"></td>
+						<td data-bind="text: stop"></td>
+					</tr>
+					<!-- /ko -->
+				</tbody>
+				</table>
 			</div>
 		</div>
 	</div>

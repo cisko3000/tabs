@@ -2,7 +2,8 @@ from flask import Flask, Blueprint, jsonify
 from flask_restful import Resource, Api, reqparse, abort
 from flask_restful import fields, marshal_with
 from flask.ext.login import login_required
-from app.models import Contact, Project
+from app.models import Contact, Project, TimeEntry
+from datetime import datetime
 from .. import db
 
 api_mod = Blueprint('api', __name__, url_prefix = '/api')
@@ -24,6 +25,7 @@ project_fields = {
 	'uri': fields.Url('api.contactlist')	
 }
 time_fields = {
+	'project_name' : fields.String,
 	'start' : fields.String,
 	'stop' : fields.String
 }
@@ -107,8 +109,9 @@ class TimeEntryList(Resource):
 	decorators = [login_required]
 	@marshal_with(time_fields)
 	def get(self):
-		return db.session.query(TimeEntry).all()
-
+		#return [ (x.project.name, x.start.strftime(), lambda: x.stop.strftime('%x %H:%M') or '' ) for x in db.session.query(TimeEntry).join(Project).all() ]
+		dlist = [ (x.project.name, x.start.strftime('%x %H:%M'), lambda: x.stop.strftime('%x %H:%M') or '' ) for x in db.session.query(TimeEntry).join(Project).all() ]
+		return jsonify(dlist)
 
 # Setup the API resource routing here
 api.add_resource(TabsContact,  '/contact/<contact_id>')
@@ -116,5 +119,6 @@ api.add_resource(TabsProject,  '/projects/<project_id>')
 api.add_resource(TabsTimeEntry,'/time_entries/<time_entry_id>')
 api.add_resource(ContactList,  '/contacts')
 api.add_resource(ProjectList,  '/projects')
-api.add_resource(TimeEntryList,  '/time_entries')
+api.add_resource(TimeEntryList,  '/entries')
+
 
