@@ -4,6 +4,8 @@ from flask_restful import fields, marshal_with
 from flask.ext.login import login_required
 from app.models import Contact, Project, TimeEntry
 from datetime import datetime
+from sqlalchemy.sql import func
+
 from .. import db
 
 api_mod = Blueprint('api', __name__, url_prefix = '/api')
@@ -25,9 +27,11 @@ project_fields = {
 	'uri': fields.Url('api.contactlist')	
 }
 time_fields = {
-	'project_name' : fields.String,
-	'start' : fields.String,
-	'stop' : fields.String
+		'project_name' : fields.String,
+		'start' : fields.String,
+		'stop' : fields.String,
+		'delta' : fields.String,
+	'entries_total' : fields.String
 }
 def abort_if_dne(model_type, model_id):
 	if not db.session.query(model_type).get(model_id):
@@ -110,8 +114,25 @@ class TimeEntryList(Resource):
 	@marshal_with(time_fields)
 	def get(self):
 		#return [ (x.project.name, x.start.strftime(), lambda: x.stop.strftime('%x %H:%M') or '' ) for x in db.session.query(TimeEntry).join(Project).all() ]
-		dlist = [ (x.project.name, x.start.strftime('%x %H:%M'), lambda: x.stop.strftime('%x %H:%M') or '' ) for x in db.session.query(TimeEntry).join(Project).all() ]
-		return jsonify(dlist)
+		#dlambda = lambda s : s.stop.strftime('%x %H:%M') or ""
+		dl2 = lambda y : y or ''
+		def dlambda(s):
+			try:
+				return s.stop.strftime('%x %H:%M')
+			except:
+				return ""
+		dlist = [ {
+					'project_name':x.project.name,
+					'start' : x.start.strftime('%x %H:%M'),
+					'stop' : dlambda(x),
+					'delta': dl2(x.delta) } for x in db.session.query(TimeEntry).join(Project).all() ]
+		#raise ValueError(dlist)
+		#total = db.session.query(TimeEntry).join(Project).all()
+		total = db.session.query(func.sum(TimeEntry.delta).label('entries_total')).first()
+		#raise ValueError(total)
+		#return [{'time_entries':dlist}] + [{'entries_total': str(total[0])}]
+		return dlist +  [{'entries_total': str(total[0])}]
+		#return jsonify(dlist = dlist)
 
 # Setup the API resource routing here
 api.add_resource(TabsContact,  '/contact/<contact_id>')

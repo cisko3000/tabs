@@ -255,6 +255,7 @@ $(function(){
 		self.entriesURI = $SCRIPT_ROOT+'/api/entries';
 		self.entryURI = $SCRIPT_ROOT+'/api/entry/';
 		self.entries = ko.observableArray();
+		self.entries_total = ko.observable();
 		self.ajax = function(uri, method, data) {
 			var localRequest = request;
 			localRequest.url = uri;
@@ -263,15 +264,19 @@ $(function(){
 			return $.ajax(localRequest);
 		}
 		self.ajax(self.entriesURI, 'GET').done(function(data) {
-			console.log('entries');
+			console.log('data');
 			console.log(data);
+			console.log('entries');
+			console.log(data.time_entries);
 			for (var i = 0; i < data.length; i++) {
 				self.entries.push({
-					project_name: 	ko.observable(data[i].name),
-					start: 	ko.observable(data[i].email),
-					stop: 	ko.observable(data[i].notes)
+					project_name: 	ko.observable(data[i].project_name),
+					start: 	ko.observable(data[i].start),
+					stop: 	ko.observable(data[i].stop),
+					delta: 	ko.observable(data[i].delta)
 				});
 			}
+			self.entries_total = ko.observable(data.entries_total);
 		});
 	}
 	// Contacts
@@ -378,7 +383,7 @@ $(function(){
 		<div class="col-md-4">
 			<div class="panel panel-default" id="entries_container">
 				<div class="panel-heading">
-					<div class="panel-title">Last 20 TimeEntries</div>
+					<div class="panel-title">Time Entries</div>
 				</div>
 				<table class="table">
 					<tbody>
@@ -387,8 +392,10 @@ $(function(){
 						<td data-bind="text: project_name"></td>
 						<td data-bind="text: start"></td>
 						<td data-bind="text: stop"></td>
+						<td data-bind="text: delta"></td>
 					</tr>
 					<!-- /ko -->
+					<tr><td colspan=4 class="text-right" data-bind="text: entries_total"></td></tr>
 				</tbody>
 				</table>
 			</div>
