@@ -26,11 +26,15 @@ project_fields = {
 	'notes': fields.String,
 	'uri': fields.Url('api.contactlist')	
 }
-time_fields = {
+time_entry = {
 		'project_name' : fields.String,
 		'start' : fields.String,
 		'stop' : fields.String,
 		'delta' : fields.String,
+	}
+time_entries = {
+	
+	'entries' : fields.List(fields.Nested(time_entry)),
 	'entries_total' : fields.String
 }
 def abort_if_dne(model_type, model_id):
@@ -78,7 +82,7 @@ class TabsProject(Resource):
 		return db.session.query(Project).get(project_id)
 
 class TabsTimeEntry(Resource):
-	@marshal_with(time_fields)
+	@marshal_with(time_entry)
 	def get(self, contact_id):
 		abort_if_dne(TimeEntry, time_entry_id)
 		return db.session.query(TimeEntry).get(time_entry_id)
@@ -111,7 +115,7 @@ class ProjectList(Resource):
 
 class TimeEntryList(Resource):
 	decorators = [login_required]
-	@marshal_with(time_fields)
+	@marshal_with(time_entries)
 	def get(self):
 		#return [ (x.project.name, x.start.strftime(), lambda: x.stop.strftime('%x %H:%M') or '' ) for x in db.session.query(TimeEntry).join(Project).all() ]
 		#dlambda = lambda s : s.stop.strftime('%x %H:%M') or ""
@@ -131,7 +135,7 @@ class TimeEntryList(Resource):
 		total = db.session.query(func.sum(TimeEntry.delta).label('entries_total')).first()
 		#raise ValueError(total)
 		#return [{'time_entries':dlist}] + [{'entries_total': str(total[0])}]
-		return dlist +  [{'entries_total': str(total[0])}]
+		return [{'entries': dlist , 'entries_total': str(total[0])}]
 		#return jsonify(dlist = dlist)
 
 # Setup the API resource routing here

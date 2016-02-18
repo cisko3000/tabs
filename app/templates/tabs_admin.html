@@ -266,17 +266,17 @@ $(function(){
 		self.ajax(self.entriesURI, 'GET').done(function(data) {
 			console.log('data');
 			console.log(data);
-			console.log('entries');
-			console.log(data.time_entries);
-			for (var i = 0; i < data.length; i++) {
+			for (var i = 0; i < data[0].entries.length; i++) {
+				var dtemp = data[0].entries[i];
 				self.entries.push({
-					project_name: 	ko.observable(data[i].project_name),
-					start: 	ko.observable(data[i].start),
-					stop: 	ko.observable(data[i].stop),
-					delta: 	ko.observable(data[i].delta)
+					project_name: 	ko.observable(dtemp.project_name),
+					start: 	ko.observable(dtemp.start),
+					stop: 	ko.observable(dtemp.stop),
+					delta: 	ko.observable(dtemp.delta)
 				});
 			}
-			self.entries_total = ko.observable(data.entries_total);
+			self.entries_total(data[0].entries_total);
+			console.log(self.entries_total());
 		});
 	}
 	// Contacts
@@ -392,7 +392,7 @@ $(function(){
 						<td data-bind="text: project_name"></td>
 						<td data-bind="text: start"></td>
 						<td data-bind="text: stop"></td>
-						<td data-bind="text: delta"></td>
+						<td class="text-right" data-bind="text: delta"></td>
 					</tr>
 					<!-- /ko -->
 					<tr><td colspan=4 class="text-right" data-bind="text: entries_total"></td></tr>
