@@ -82,6 +82,7 @@ class TabsProject(Resource):
 		return db.session.query(Project).get(project_id)
 
 class TabsTimeEntry(Resource):
+	decorators = [login_required]
 	@marshal_with(time_entry)
 	def get(self, contact_id):
 		abort_if_dne(TimeEntry, time_entry_id)
@@ -95,7 +96,7 @@ class ContactList(Resource):
 	@marshal_with(contact_fields)
 	def get(self):
 		return db.session.query(Contact).all()
-
+	decorators = [login_required]
 	@marshal_with(contact_fields)
 	def post(self):
 		args = parser.parse_args()
@@ -117,8 +118,6 @@ class TimeEntryList(Resource):
 	decorators = [login_required]
 	@marshal_with(time_entries)
 	def get(self):
-		#return [ (x.project.name, x.start.strftime(), lambda: x.stop.strftime('%x %H:%M') or '' ) for x in db.session.query(TimeEntry).join(Project).all() ]
-		#dlambda = lambda s : s.stop.strftime('%x %H:%M') or ""
 		dl2 = lambda y : y or ''
 		def dlambda(s):
 			try:
@@ -130,13 +129,8 @@ class TimeEntryList(Resource):
 					'start' : x.start.strftime('%x %H:%M'),
 					'stop' : dlambda(x),
 					'delta': dl2(x.delta) } for x in db.session.query(TimeEntry).join(Project).all() ]
-		#raise ValueError(dlist)
-		#total = db.session.query(TimeEntry).join(Project).all()
 		total = db.session.query(func.sum(TimeEntry.delta).label('entries_total')).first()
-		#raise ValueError(total)
-		#return [{'time_entries':dlist}] + [{'entries_total': str(total[0])}]
 		return [{'entries': dlist , 'entries_total': str(total[0])}]
-		#return jsonify(dlist = dlist)
 
 # Setup the API resource routing here
 api.add_resource(TabsContact,  '/contact/<contact_id>')

@@ -12,6 +12,7 @@ from flask_admin.contrib.sqla import ModelView
 # from flask.ext.sqlalchemy import SQLAlchemy
 # Models
 from app.models import *
+from app.mod_auth.models import *
 from app.models import db
 # Flask-WTF
 from flask.ext.wtf import Form
@@ -67,28 +68,29 @@ def create_app():
 	admin.add_view(ModelView(Project,db.session))
 	admin.add_view(ModelView(Invoice,db.session))
 	admin.add_view(ModelView(InvoiceLine,db.session))
+	admin.add_view(ModelView(User,db.session))
 	admin.add_link(MenuLink('TBiller',endpoint='home'))
 
 	login_manager = LoginManager()
 	login_manager.init_app(app)
 	login_manager.login_view = 'login'
 
-	class User(UserMixin):
+	
+	class TabsUser(UserMixin):
 		def __init__(self, user_id):
 			self.id = 1
 		def get_name(self):
 			return 'admin'
-
 	@login_manager.user_loader
 	def load_user(user_id):
-		return User(1)
+		return TabsUser(1)
 
 	@app.route('/login',methods=['GET','POST'])
 	def login():
 		form = LoginForm(request.form)
 		if form.validate_on_submit():
 			if form.password.data == app.config['PASSWORD'] and form.email.data == app.config['USER_EMAIL']:
-				user = User(1)
+				user = TabsUser(1)
 				login_user(user)
 				next = request.args.get('next')
 				flash('Logged in')

@@ -365,7 +365,13 @@ $(function(){
 							<!--<label for="sstr">Search All:</label>-->
 							<input type="text" class="form-control" name="sstr">
 						    <span class="input-group-btn">
-								<button type="button" class="btn btn-secondary"  id="start">
+						    	<button data-bind="click: dateRange" type="button" class="btn btn-secondary" data-toggle="dropdown"  id="date-range-button" style="border: 1px solid #dfd7ca">
+									<span class="glyphicon glyphicon-calendar"></span>
+								</button>
+								<ul class="dropdown-menu">
+									<li><input type="date"><input type="date"></li>
+								</ul>
+								<button type="button" class="btn btn-secondary"  id="start" style="border: 1px solid #dfd7ca">
 									<span class="glyphicon glyphicon-search"></span>
 								</button>
 							</span>
