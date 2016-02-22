@@ -1,4 +1,4 @@
-from flask import Flask, Blueprint, jsonify
+from flask import Flask, Blueprint, jsonify, request
 from flask_restful import Resource, Api, reqparse, abort
 from flask_restful import fields, marshal_with
 from flask.ext.login import login_required
@@ -47,6 +47,7 @@ parser.add_argument('contact_name',  type=str, help='Contact Name')
 parser.add_argument('contact_email', type=str, help='Contact Email')
 parser.add_argument('contact_notes', type=str, help='Contact Notes')
 parser.add_argument('contact_id', type=int, help='Contact ID')
+parser.add_argument('sstr', type=str, help='Search String')
 
 # Single Resources
 class TabsContact(Resource):
@@ -95,6 +96,12 @@ class ContactList(Resource):
 	decorators = [login_required]
 	@marshal_with(contact_fields)
 	def get(self):
+		#args = parser.parse_args()
+		#print(parser.parse_args())
+		#sstr = request.args.get('sstr',None)
+		#print(sstr)
+		#if sstr:
+		#	return Contact.query.filter(Contact.name.like(search_string)).all()
 		return db.session.query(Contact).all()
 	decorators = [login_required]
 	@marshal_with(contact_fields)
