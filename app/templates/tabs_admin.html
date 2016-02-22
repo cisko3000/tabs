@@ -66,8 +66,6 @@ $(function(){
 			self.projects()[i].name(newProject.name);
 		}
 		self.ajax(self.projectsURI, 'GET').done(function(data) {
-			//self.contacts({});
-			console.log(data);
 			for (var i = 0; i < data.length; i++) {
 				self.projects.push({
 					contact: 	ko.observable(data[i].contact),
@@ -185,7 +183,6 @@ $(function(){
 				});
 				addProjectViewModel.availableContacts.push(new Contact(data[i].name,data[i].id));
 			}
-			//console.log(addProjectViewModel.availableContacts());
 		});
 		self.add = function(contact) {
 			self.ajax(self.contactsURI, 'POST', contact).done(function (data) {
@@ -287,8 +284,6 @@ $(function(){
 			return $.ajax(localRequest);
 		}
 		self.ajax(self.entriesURI, 'GET').done(function(data) {
-			console.log('data');
-			console.log(data);
 			for (var i = 0; i < data[0].entries.length; i++) {
 				var dtemp = data[0].entries[i];
 				self.entries.push({
@@ -299,7 +294,6 @@ $(function(){
 				});
 			}
 			self.entries_total(data[0].entries_total);
-			console.log(self.entries_total());
 		});
 		function alphaSort(dtype) {
 			return function(left, right) {
@@ -364,17 +358,30 @@ $(function(){
 						<div class="input-group">
 							<!--<label for="sstr">Search All:</label>-->
 							<input type="text" class="form-control" name="sstr">
-						    <span class="input-group-btn">
+						    <div class="input-group-btn">
+						    	
 						    	<button data-bind="click: dateRange" type="button" class="btn btn-secondary" data-toggle="dropdown"  id="date-range-button" style="border: 1px solid #dfd7ca">
 									<span class="glyphicon glyphicon-calendar"></span>
 								</button>
-								<ul class="dropdown-menu">
-									<li><input type="date"><input type="date"></li>
+								<ul class="dropdown-menu dropdown-menu-right" style="padding:15px">
+									<li>
+										<div class="input-group">
+											<label for="sstr_from" class="panel-title">From</label>
+											<input id="sstr_from" class="form-control" type="date">
+										</div>
+									</li>
+									<li role="separator" class="divider"></li>
+									<li>
+										<div class="input-group">
+											<label for="sstr_to" class="panel-title">To</label>
+											<input id="sstr_to" class="form-control" type="date">
+										</div>
+									</li>
 								</ul>
 								<button type="button" class="btn btn-secondary"  id="start" style="border: 1px solid #dfd7ca">
 									<span class="glyphicon glyphicon-search"></span>
 								</button>
-							</span>
+							</div>
 					    </div>
 					</form>
 				</div>
