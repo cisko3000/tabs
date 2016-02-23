@@ -32,6 +32,15 @@ $(function(){
 		dataType: 'json',
 		data: ''
 	};
+	var search_request = {
+		url : '',
+		type: '',
+		//contentType: "application/json",
+		accepts: "application/json",
+		cache: false,
+		dataType: 'json',
+		data: ''
+	};
 	function ProjectsViewModel() {
 		var self = this;
 		self.projectsURI = $SCRIPT_ROOT+'/api/projects';
@@ -44,17 +53,26 @@ $(function(){
 			localRequest.data = JSON.stringify(data);
 			return $.ajax(localRequest);
 		}
+		self.ajax_search = function (uri, method, data) {
+			var localRequest = search_request;
+			localRequest.url = uri;
+			localRequest.method = method;
+			localRequest.data = data;
+			return $.ajax(localRequest);
+		}
 		self.beginAddProject = function(project) {
 			//addProjectViewModel.availableContacts(addProjectViewModel.availableContacts);
 			$('#addProject').modal('show');
 		}
 		self.add = function(project) {
 			self.ajax(self.projectsURI, 'POST', project).done(function (data) {
-				self.contacts.push({
+				self.projects.push({
+					contact_id: ko.observable(data.contact_id),
 					contact: ko.observable(data.contact),
 					name: ko.observable(data.name),
 					notes: ko.observable(data.notes),
-					id: ko.observable(data.id)
+					id: ko.observable(data.id),
+					total: 	ko.observable(111)
 				});
 			});
 		}
@@ -83,7 +101,24 @@ $(function(){
 					id: 	ko.observable(data[i].id)
 				});
 			}	
-		})
+		});
+		self.search_for = function(the_term) {
+			var data = {sstr:the_term};
+			console.log(data);
+			self.ajax_search(self.projectsURI, 'GET' ,data).done(function(data) {
+				self.projects.removeAll();
+				for (var i = 0; i < data.length; i++) {
+					self.projects.push({
+						contact: 	ko.observable(data[i].contact),
+						contact_id: 	ko.observable(data[i].contact_id),
+						name: 	ko.observable(data[i].name),
+						notes: 	ko.observable(data[i].notes),
+						total: 	ko.observable(77),
+						id: 	ko.observable(data[i].id)
+					});
+				}
+			});
+		}
 	}
 	function AddProjectViewModel() {
 		var self = this;
@@ -98,6 +133,7 @@ $(function(){
 			$('#addProject').modal('hide');
 			// When addContact is executed, add details to contacts list
 			// then reset the dialog values to empty strings.
+			console.log(self.contact());
 			projectsViewModel.add({
 				project_name: self.name(),
 				project_contact: self.contact(),
@@ -141,7 +177,6 @@ $(function(){
 	function ContactsViewModel() {
 		var self = this;
 		self.contactsURI = $SCRIPT_ROOT+'/api/contacts';
-		self.contactsSearchURI = $SCRIPT_ROOT+'/api/contacts_search';
 		self.contactURI = $SCRIPT_ROOT+'/api/contact/';
 		self.contacts = ko.observableArray();
 		self.sortedBy = '';
@@ -150,8 +185,6 @@ $(function(){
 			localRequest.url = uri;
 			localRequest.method = method;
 			localRequest.data = JSON.stringify(data);
-			console.log('localRequest.data');
-			console.log(localRequest.data);
 				/*,
 				beforeSend: function (xhr) {
 					xhr.setRequestHeader("Authorization", "Basic " + btoa(self.username+":" + self.password));
@@ -159,6 +192,15 @@ $(function(){
 				error: function(jqXHR) {
 					console.log("ajax error " + jqXHR.status);
 				}*/
+			return $.ajax(localRequest);
+		}
+		self.ajax_search = function (uri, method, data) {
+			var localRequest = search_request;
+			localRequest.url = uri;
+			localRequest.method = method;
+			localRequest.data = data;
+			console.log('localRequest.data');
+			console.log(localRequest.data);
 			return $.ajax(localRequest);
 		}
 		self.beginAddContact = function(contact) {
@@ -194,8 +236,9 @@ $(function(){
 			}
 		});
 		self.search_for = function(the_term) {
-			console.log(the_term);
-			self.ajax(self.contactsURI, 'GET',{sstr:the_term}).done(function(data) {
+			var data = {sstr:the_term};
+			console.log(data);
+			self.ajax_search(self.contactsURI, 'GET' ,data).done(function(data) {
 				self.contacts.removeAll();
 				for (var i = 0; i < data.length; i++) {
 					self.contacts.push({
@@ -342,6 +385,30 @@ $(function(){
 			self.entries.sort(numSort('delta'));
 			self.sortedBy = self.sortedBy == '' ? 'delta' : '';
 			if (self.sortedBy == '') self.entries.reverse();
+		}
+		self.ajax_search = function (uri, method, data) {
+			var localRequest = search_request;
+			localRequest.url = uri;
+			localRequest.method = method;
+			localRequest.data = data;
+			return $.ajax(localRequest);
+		}
+		self.search_for = function(the_term) {
+			var data = {sstr:the_term};
+			console.log(data);
+			self.ajax_search(self.entriesURI, 'GET' ,data).done(function(data) {
+				self.entries.removeAll();
+				for (var i = 0; i < data[0].entries.length; i++) {
+					var dtemp = data[0].entries[i];
+					self.entries.push({
+						project_name: 	ko.observable(dtemp.project_name),
+						start: 	ko.observable(dtemp.start),
+						stop: 	ko.observable(dtemp.stop),
+						delta: 	ko.observable(dtemp.delta)
+					});
+				}
+				self.entries_total(data[0].entries_total);
+			});
 		}
 	}
 	// Contacts

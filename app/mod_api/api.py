@@ -4,7 +4,9 @@ from flask_restful import fields, marshal_with
 from flask.ext.login import login_required
 from app.models import Contact, Project, TimeEntry
 from datetime import datetime
-from sqlalchemy.sql import func
+from sqlalchemy.sql import func, or_
+import sys
+import traceback
 
 from .. import db
 
@@ -42,12 +44,15 @@ def abort_if_dne(model_type, model_id):
 		abort(404, message="%s %s doesn't exist" % (model_type, model_id))
 
 
-parser = reqparse.RequestParser()
+parser = reqparse.RequestParser(bundle_errors =True)
 parser.add_argument('contact_name',  type=str, help='Contact Name')
 parser.add_argument('contact_email', type=str, help='Contact Email')
 parser.add_argument('contact_notes', type=str, help='Contact Notes')
 parser.add_argument('contact_id', type=int, help='Contact ID')
-parser.add_argument('sstr', type=str, help='Search String')
+parser.add_argument('project_contact', type=str, help='Contact ID')
+parser.add_argument('project_name', type=str, help='Project Name')
+parser.add_argument('project_notes', type=str, help='Project Notes')
+parser.add_argument('sstr', type=str, help='Search String', location='args')
 
 # Single Resources
 class TabsContact(Resource):
@@ -96,12 +101,12 @@ class ContactList(Resource):
 	decorators = [login_required]
 	@marshal_with(contact_fields)
 	def get(self):
-		#args = parser.parse_args()
-		#print(parser.parse_args())
-		#sstr = request.args.get('sstr',None)
-		#print(sstr)
-		#if sstr:
-		#	return Contact.query.filter(Contact.name.like(search_string)).all()
+		try:
+			args = parser.parse_args()
+			search_string = args['sstr']
+			return Contact.query.filter(Contact.name.contains(search_string)).all()
+		except:
+			pass
 		return db.session.query(Contact).all()
 	decorators = [login_required]
 	@marshal_with(contact_fields)
@@ -119,12 +124,67 @@ class ProjectList(Resource):
 	decorators = [login_required]
 	@marshal_with(project_fields)
 	def get(self):
+		try:
+			args = parser.parse_args()
+			search_string = args['sstr']
+			return Project.query.join(Contact).filter(
+				or_(
+					Project.name.contains(search_string),
+					Project.notes.contains(search_string),
+					Contact.name.contains(search_string),
+					)
+				).all()
+		except:
+			#print "Unexpected error:", sys.exc_info()[0]
+			pass
 		return db.session.query(Project).join(Contact).all()
+	decorators = [login_required]
+	@marshal_with(contact_fields)
+	def post(self):
+		args = parser.parse_args()
+		p = Project()
+		p.contact_id = args['project_contact']
+		p.name  = args['project_name']
+		p.notes = args['project_notes']
+		db.session.add(p)
+		db.session.commit()
+		return p , 201
 
 class TimeEntryList(Resource):
 	decorators = [login_required]
 	@marshal_with(time_entries)
 	def get(self):
+		'''
+		query = None
+		try:
+			args = parser.parse_args()
+			search_string = args['sstr']
+			if search_string != '':
+			#query =  TimeEntry.query.join(Project).filter(Project.name.contains(search_string))
+				query = db.session.query(TimeEntry).join(Project).filter(Project.name.contains(search_string))
+				query = db.session.query(TimeEntry).join(Project)
+				sum_query = query.with_entities(func.sum(TimeEntry.delta).label('entries_total'))
+		except ValueError as e:
+			print "Unexpected error:", sys.exc_info()[0], e
+			pass
+		if query == None:
+			query = db.session.query(TimeEntry).join(Project)
+			sum_query = db.session.query(func.sum(TimeEntry.delta).label('entries_total'))
+		'''
+		reg_q = db.session.query(TimeEntry).join(Project)
+		sum_q = db.session.query(func.sum(TimeEntry.delta).label('entries_total'))
+		try:
+			args = parser.parse_args()
+			search_string = args['sstr']
+			print(search_string)
+			if search_string != '':
+				reg_q = reg_q.filter(Project.name.contains(search_string))
+				sum_q = reg_q.with_entities(func.sum(TimeEntry.delta).label('entries_total'))
+				print(sum_q.first().entries_total)
+		except Exception, err:
+			traceback.print_exc()
+			reg_q = db.session.query(TimeEntry).join(Project)
+			pass
 		dl2 = lambda y : y or ''
 		def dlambda(s):
 			try:
@@ -135,8 +195,8 @@ class TimeEntryList(Resource):
 					'project_name':x.project.name,
 					'start' : x.start.strftime('%x %H:%M'),
 					'stop' : dlambda(x),
-					'delta': dl2(x.delta) } for x in db.session.query(TimeEntry).join(Project).all() ]
-		total = db.session.query(func.sum(TimeEntry.delta).label('entries_total')).first()
+					'delta': dl2(x.delta) } for x in reg_q.all() ]
+		total = sum_q.first()
 		return [{'entries': dlist , 'entries_total': str(total[0])}]
 
 # Setup the API resource routing here
