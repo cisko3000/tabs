@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}
+TABS - Register
+{% endblock %}
+
+{% macro render_field(field, placeholder=None) %}
+{% if field.errors %}
+	<div>
+{% elif field.flags.error %}
+	<div>
+{% else %}
+	<div>
+{% endif %}
+	{% set css_class = 'form-group form-control ' + kwargs.pop('class', '') %}
+	{{ field(class=css_class, placeholder=placeholder, **kwargs) }}
+</div>
+{% endmacro %}
+
+{% block navbar %}
+{% endblock navbar %}
+
+{% block content %}
+<br>
+<br>
+{{ super() }}
+<div class="container">
+	<div class="row">
+		<div class="col-sm-offset-3 col-sm-6">
+			<div>
+				<h1 class="text-primary" style="display:inline;">TABS</h1>
+				<p class="text-muted"    style="display:inline;">&nbsp;(Time And Billing System)</p>
+			</div>
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<div class="panel-title"><h3 class="panel-title">Register to start using TABS</h3></div>
+				</div>
+				<div class="panel-body">
+					{% if form.errors %}
+					<div>
+						{# items() returns a list of dict's (key, value) tuple pairs #}
+						{% for field, error in form.errors.items() %}
+							{% for e in error %}
+							{{ e }}<br>
+							{% endfor %}
+						{% endfor %}
+					</div>
+					{% endif %}
+
+					<form method="POST"  action="" accept-charset="UTF-8" role="form">
+					{{ form.csrf_token }}
+					{{ render_field(form.username, placeholder="Desired Username",
+									autofocus="") }}
+					{{ render_field(form.email, placeholder="Email") }}
+					{{ render_field(form.password, placeholder="Password") }}
+					{{ render_field(form.confirm, placeholder="Confirm") }}
+
+					<div class="form-group">
+						<label>
+							{{ form.accept_tos() }}
+							<!--<input type="checkbox" name="remember" value="1">-->
+							I accept the TOS
+						</label>
+						<!--<a role="button" href="{# url_for('auth.rp_request') #}">Forgot your password?</a>-->
+						<span class="clearfix"></span>
+					</div>
+					<button class="btn btn-primary pull-right" type="submit" name="submit">Register</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+
+
+

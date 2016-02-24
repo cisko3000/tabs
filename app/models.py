@@ -39,6 +39,8 @@ class Contact(db.Model):
 	name = db.Column(db.String(120))
 	email = db.Column(db.String(120))
 	notes = db.Column(db.Text())
+	user_id = db.Column(db.Integer, db.ForeignKey('auth_user.id'))
+	user = db.relationship("User")
 	#project_id = db.Column(db.Integer, db.ForeignKey('Project.id'))
 	#project = db.relationship("Project")
 	def __repr__(self):

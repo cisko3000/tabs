@@ -13,13 +13,15 @@ from flask_admin.contrib.sqla import ModelView
 # Models
 from app.models import *
 from app.mod_auth.models import *
+from app.mod_auth.forms import *
 from app.models import db
 # Flask-WTF
 from flask.ext.wtf import Form
 from wtforms.ext.sqlalchemy.orm import model_form
+#from sqlalchemy import or_
 
 # SQLAlchemy funcs
-from sqlalchemy.sql import func
+from sqlalchemy.sql import func, or_
 
 from wtforms import validators, widgets, TextField, SelectField, DecimalField, BooleanField, DateField, FieldList, FormField, FloatField, TextAreaField
 from custom_wtforms import Select2Widget, Select2Field
@@ -36,6 +38,10 @@ from wtforms import TextField, PasswordField, BooleanField
 # Import Form validators
 from wtforms.validators import Required, Email, EqualTo, NoneOf, ValidationError
 from mod_auth.forms import LoginForm
+
+# Import password / encryption helper tools
+from werkzeug import check_password_hash, \
+	generate_password_hash
 
 
 # create greg app
@@ -80,22 +86,48 @@ def create_app():
 		def __init__(self, user_id):
 			self.id = 1
 		def get_name(self):
-			return 'admin'
+			return user.name
 	@login_manager.user_loader
 	def load_user(user_id):
-		return TabsUser(1)
+		return User.query.get(user_id)
 
 	@app.route('/login',methods=['GET','POST'])
 	def login():
 		form = LoginForm(request.form)
 		if form.validate_on_submit():
-			if form.password.data == app.config['PASSWORD'] and form.email.data == app.config['USER_EMAIL']:
-				user = TabsUser(1)
+			user = User.query.filter(User.email == form.email.data).first()
+			if user and check_password_hash(user.password, form.password.data) and user.status == 0:
+				print(user)
+				print('User exists')
 				login_user(user)
 				next = request.args.get('next')
 				flash('Logged in')
 				return redirect(next or url_for('home'))
 		return render_template('auth/login.html', form=form)
+	@app.route('/register', methods=['GET','POST'])
+	def register():
+		form = RegisterForm(request.form)
+		if form.validate_on_submit():
+			user = User.query.filter(
+					or_(User.email==form.email.data,
+						User.username==form.username.data)
+				).first()
+			if user:
+				flash('Username or email taken.')
+				return render_template("register.html", form = form)
+			new_user = User('','','')
+			form.populate_obj(new_user)
+			new_user.username = form.username.data
+			new_user.status = 0
+			new_user.password = generate_password_hash(new_user.password)
+			db.session.add(new_user)
+			db.session.commit()
+			flash('Success: User Registered')
+			return redirect(url_for('home'))
+		return render_template("auth/register.html", form = form)
+
+
+
 	@app.route('/logout', methods=['GET'])
 	def logout():
 		logout_user()
