@@ -258,6 +258,7 @@ $(function(){
 					notes: ko.observable(data.notes),
 					id: ko.observable(data.id)
 				});
+				addProjectViewModel.availableContacts.push(new Contact(data.name,data.id));
 			});
 		}
 		self.remove = function(contact) {
