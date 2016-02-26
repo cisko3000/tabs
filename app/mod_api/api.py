@@ -104,7 +104,10 @@ class ContactList(Resource):
 		try:
 			args = parser.parse_args()
 			search_string = args['sstr']
-			return Contact.query.filter(Contact.name.contains(search_string)).all()
+			return Contact.query.filter(or_(
+				Contact.name.contains(search_string),
+				Contact.notes.contains(search_string),
+				)).all()
 		except:
 			pass
 		return db.session.query(Contact).all()
@@ -178,7 +181,7 @@ class TimeEntryList(Resource):
 			search_string = args['sstr']
 			print(search_string)
 			if search_string != '':
-				reg_q = reg_q.filter(Project.name.contains(search_string))
+				reg_q = reg_q.filter( Project.name.contains(search_string) )
 				sum_q = reg_q.with_entities(func.sum(TimeEntry.delta).label('entries_total'))
 				print(sum_q.first().entries_total)
 		except Exception, err:

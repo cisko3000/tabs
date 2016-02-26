@@ -180,6 +180,11 @@ $(function(){
 		self.contactURI = $SCRIPT_ROOT+'/api/contact/';
 		self.contacts = ko.observableArray();
 		self.sortedBy = '';
+		self.magnify = function(data, event) {
+			console.log($(event.target).html());
+		}
+		self.magnifyReset = function() {}
+
 		self.ajax = function(uri, method, data) {
 			var localRequest = request;
 			localRequest.url = uri;
@@ -507,13 +512,29 @@ $(function(){
 				</div>
 				<!--<div class="panel-body">
 				</div>-->
+				<style>
+				.notes-span-50 {
+					display:inline-block;
+					max-width:80px;
+					white-space: nowrap;
+					overflow: hidden !important;
+					text-overflow:ellipsis;
+				}
+				.notes-span-100 {
+					display:inline-block;
+					max-width:100px;
+					white-space: nowrap;
+					overflow: hidden !important;
+					text-overflow:ellipsis;
+				}
+				</style>
 				<table class="table">
 					<tbody>
 					<!-- ko foreach: contacts -->
 					<tr>
 						<td data-bind="text: name" >Peter Griffin</td>
-						<td data-bind="text: email">peter@griffin.com</td>
-						<td data-bind="text: notes">Some notes</td>
+						<td><span data-bind="text: email, event: {mouseover: $parent.magnify, mouseout: $parent.magnifyReset }" class="notes-span-50">peter@griffin.com</span></td>
+						<td><span data-bind="text: notes" class="notes-span-100">Some notes</span></td>
 						<td><input data-bind="text: id" type="hidden"><span data-bind="click: $parent.beginEdit" style="cursor:pointer" class="glyphicon glyphicon-pencil"> </span></td>
 						<td><span data-bind="click: $parent.remove" style="cursor:pointer" class="glyphicon glyphicon-trash" > </span></td>
 					</tr>
