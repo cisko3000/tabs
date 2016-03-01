@@ -160,7 +160,8 @@ def create_app():
 	@app.route('/tabs_admin', methods=['GET'])
 	@login_required
 	def tabs_admin():
-		return render_template('tabs_admin.html')
+		from datetime import datetime
+		return render_template('tabs_admin.html', dtime = datetime.now().time())
 	@app.route('/', methods=['GET','POST'])
 	@login_required
 	def home():

@@ -86,6 +86,14 @@ class TabsProject(Resource):
 	def get(self, project_id):
 		abort_if_dne(Project, contact_id)
 		return db.session.query(Project).get(project_id)
+	decorators = [login_required]
+	@marshal_with(project_fields)
+	def delete(self, project_id):
+		abort_if_dne(Project, project_id)
+		to_del = Project.query.get(project_id)
+		db.session.delete(to_del)
+		db.session.commit()
+		return []		
 
 class TabsTimeEntry(Resource):
 	decorators = [login_required]
@@ -142,7 +150,7 @@ class ProjectList(Resource):
 			pass
 		return db.session.query(Project).join(Contact).all()
 	decorators = [login_required]
-	@marshal_with(contact_fields)
+	@marshal_with(project_fields)
 	def post(self):
 		args = parser.parse_args()
 		p = Project()
@@ -204,7 +212,7 @@ class TimeEntryList(Resource):
 
 # Setup the API resource routing here
 api.add_resource(TabsContact,  '/contact/<contact_id>')
-api.add_resource(TabsProject,  '/projects/<project_id>')
+api.add_resource(TabsProject,  '/project/<project_id>')
 api.add_resource(TabsTimeEntry,'/time_entries/<time_entry_id>')
 api.add_resource(ContactList,  '/contacts')
 api.add_resource(ProjectList,  '/projects')
