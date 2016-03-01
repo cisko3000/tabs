@@ -30,6 +30,134 @@ $(function(){
 		dataType: 'json',
 		data: ''
 	};
+	function ContactsViewModel() {
+		var self = this;
+		self.contactsURI = $SCRIPT_ROOT+'/api/contacts';
+		self.contactURI = $SCRIPT_ROOT+'/api/contact/';
+		self.contacts = ko.observableArray();
+		self.sortedBy = '';
+		//self.magnified = ko.observable('magnified');
+		//self.notesSpan50 = ko.observable('notes-span-50');
+		self.magnify = function(contact, data, event) {
+			//console.log(contact);
+			//console.log($(event.target).html());
+			contact.emailDisplay(ko.observable('magnified'));
+		}
+		self.magnifyReset = function(contact, data, event) {
+			console.log(contact);
+			contact.emailDisplay(ko.observable('notes-span-50'));
+			console.log(contact.emailDisplay());
+		}
+
+		self.ajax = function(uri, method, data) {
+			var localRequest = request;
+			localRequest.url = uri;
+			localRequest.method = method;
+			localRequest.data = JSON.stringify(data);
+				/*,
+				beforeSend: function (xhr) {
+					xhr.setRequestHeader("Authorization", "Basic " + btoa(self.username+":" + self.password));
+				}
+				error: function(jqXHR) {
+					console.log("ajax error " + jqXHR.status);
+				}*/
+			return $.ajax(localRequest);
+		}
+		self.ajax_search = function (uri, method, data) {
+			var localRequest = search_request;
+			localRequest.url = uri;
+			localRequest.method = method;
+			localRequest.data = data;
+			console.log('localRequest.data');
+			console.log(localRequest.data);
+			return $.ajax(localRequest);
+		}
+		self.beginAddContact = function(contact) {
+			$('#addContact').modal('show');
+		}
+		self.beginEdit = function(contact) {
+			editContactViewModel.setContact(contact);
+			$('#edit').modal('show');
+		}
+		self.edit = function(contact, data) {
+			self.ajax(self.contactURI+contact.id(), 'PUT', data).done(function(res) {
+				self.updateContact(contact, res);
+			});
+		}
+		self.updateContact = function(contact, newContact) {
+			var i = self.contacts.indexOf(contact);
+			self.contacts()[i].name(newContact.name);
+			self.contacts()[i].email(newContact.email);
+			self.contacts()[i].notes(newContact.notes);
+			self.contacts()[i].id(newContact.id);
+		}
+
+		self.ajax(self.contactsURI, 'GET').done(function(data) {
+			//addProjectViewModel.availableContacts.removeAll();
+			for (var i = 0; i < data.length; i++) {
+				self.contacts.push({
+					name: 	ko.observable(data[i].name),
+					email: 	ko.observable(data[i].email),
+					notes: 	ko.observable(data[i].notes),
+					id: 	ko.observable(data[i].id),
+					emailDisplay : ko.observable('notes-span-50')
+				});
+				addProjectViewModel.availableContacts.push(new Contact(data[i].name,data[i].id));
+			}
+		});
+		self.search_for = function(the_term) {
+			var data = {sstr:the_term};
+			console.log(data);
+			self.ajax_search(self.contactsURI, 'GET' ,data).done(function(data) {
+				self.contacts.removeAll();
+				for (var i = 0; i < data.length; i++) {
+					self.contacts.push({
+						name: 	ko.observable(data[i].name),
+						email: 	ko.observable(data[i].email),
+						notes: 	ko.observable(data[i].notes),
+						id: 	ko.observable(data[i].id)
+					});
+				}
+			});
+		}
+		self.add = function(contact) {
+			self.ajax(self.contactsURI, 'POST', contact).done(function (data) {
+				self.contacts.push({
+					name: ko.observable(data.name),
+					email: ko.observable(data.email),
+					notes: ko.observable(data.notes),
+					id: ko.observable(data.id)
+				});
+				addProjectViewModel.availableContacts.push(new Contact(data.name,data.id));
+			});
+		}
+		self.remove = function(contact) {
+			self.ajax(self.contactURI+contact.id(), 'DELETE' ).done(function() {
+				self.contacts.remove(contact);
+			});
+		}
+		function alphaSort(dtype) {
+			return function(left, right) {
+				return left[dtype]().toLowerCase() == right[dtype]().toLowerCase() ? 0 : (left[dtype]().toLowerCase() < right[dtype]().toLowerCase() ? -1: 1);
+			};
+		}
+		self.sortContactsName = function() {
+			self.contacts.sort(alphaSort('name'));
+			self.sortedBy = self.sortedBy == '' ? 'name' : '';
+			if (self.sortedBy == '') self.contacts.reverse();
+
+		}
+		self.sortContactsEmail = function() {
+			self.contacts.sort(alphaSort('email'));
+			self.sortedBy = self.sortedBy == '' ? 'email' : '';
+			if (self.sortedBy == '') self.contacts.reverse();
+		}
+		self.sortContactsNotes = function() {
+			self.contacts.sort(alphaSort('notes'));
+			self.sortedBy = self.sortedBy == '' ? 'notes' : '';
+			if (self.sortedBy == '') self.contacts.reverse();
+		}
+	}
 	function ProjectsViewModel() {
 		var self = this;
 		self.projectsURI = $SCRIPT_ROOT+'/api/projects';
@@ -52,7 +180,7 @@ $(function(){
 		self.beginAddProject = function(project) {
 			//addProjectViewModel.availableContacts(addProjectViewModel.availableContacts);
 			$('#addProject').modal('show');
-			$('#addProject').find('select').select2({width: 'resolve'});
+			$('#addProject').find('select').select2({width: '100%'});
 		}
 		self.add = function(project) {
 			self.ajax(self.projectsURI, 'POST', project).done(function (data) {
@@ -169,125 +297,6 @@ $(function(){
 				project_notes:self.notes(),
 				project_id: self.id()
 			});
-		}
-	}
-	function ContactsViewModel() {
-		var self = this;
-		self.contactsURI = $SCRIPT_ROOT+'/api/contacts';
-		self.contactURI = $SCRIPT_ROOT+'/api/contact/';
-		self.contacts = ko.observableArray();
-		self.sortedBy = '';
-		self.magnify = function(data, event) {
-			console.log($(event.target).html());
-		}
-		self.magnifyReset = function() {}
-
-		self.ajax = function(uri, method, data) {
-			var localRequest = request;
-			localRequest.url = uri;
-			localRequest.method = method;
-			localRequest.data = JSON.stringify(data);
-				/*,
-				beforeSend: function (xhr) {
-					xhr.setRequestHeader("Authorization", "Basic " + btoa(self.username+":" + self.password));
-				}
-				error: function(jqXHR) {
-					console.log("ajax error " + jqXHR.status);
-				}*/
-			return $.ajax(localRequest);
-		}
-		self.ajax_search = function (uri, method, data) {
-			var localRequest = search_request;
-			localRequest.url = uri;
-			localRequest.method = method;
-			localRequest.data = data;
-			console.log('localRequest.data');
-			console.log(localRequest.data);
-			return $.ajax(localRequest);
-		}
-		self.beginAddContact = function(contact) {
-			$('#addContact').modal('show');
-		}
-		self.beginEdit = function(contact) {
-			editContactViewModel.setContact(contact);
-			$('#edit').modal('show');
-		}
-		self.edit = function(contact, data) {
-			self.ajax(self.contactURI+contact.id(), 'PUT', data).done(function(res) {
-				self.updateContact(contact, res);
-			});
-		}
-		self.updateContact = function(contact, newContact) {
-			var i = self.contacts.indexOf(contact);
-			self.contacts()[i].name(newContact.name);
-			self.contacts()[i].email(newContact.email);
-			self.contacts()[i].notes(newContact.notes);
-			self.contacts()[i].id(newContact.id);
-		}
-
-		self.ajax(self.contactsURI, 'GET').done(function(data) {
-			//addProjectViewModel.availableContacts.removeAll();
-			for (var i = 0; i < data.length; i++) {
-				self.contacts.push({
-					name: 	ko.observable(data[i].name),
-					email: 	ko.observable(data[i].email),
-					notes: 	ko.observable(data[i].notes),
-					id: 	ko.observable(data[i].id)
-				});
-				addProjectViewModel.availableContacts.push(new Contact(data[i].name,data[i].id));
-			}
-		});
-		self.search_for = function(the_term) {
-			var data = {sstr:the_term};
-			console.log(data);
-			self.ajax_search(self.contactsURI, 'GET' ,data).done(function(data) {
-				self.contacts.removeAll();
-				for (var i = 0; i < data.length; i++) {
-					self.contacts.push({
-						name: 	ko.observable(data[i].name),
-						email: 	ko.observable(data[i].email),
-						notes: 	ko.observable(data[i].notes),
-						id: 	ko.observable(data[i].id)
-					});
-				}
-			});
-		}
-		self.add = function(contact) {
-			self.ajax(self.contactsURI, 'POST', contact).done(function (data) {
-				self.contacts.push({
-					name: ko.observable(data.name),
-					email: ko.observable(data.email),
-					notes: ko.observable(data.notes),
-					id: ko.observable(data.id)
-				});
-				addProjectViewModel.availableContacts.push(new Contact(data.name,data.id));
-			});
-		}
-		self.remove = function(contact) {
-			self.ajax(self.contactURI+contact.id(), 'DELETE' ).done(function() {
-				self.contacts.remove(contact);
-			});
-		}
-		function alphaSort(dtype) {
-			return function(left, right) {
-				return left[dtype]().toLowerCase() == right[dtype]().toLowerCase() ? 0 : (left[dtype]().toLowerCase() < right[dtype]().toLowerCase() ? -1: 1);
-			};
-		}
-		self.sortContactsName = function() {
-			self.contacts.sort(alphaSort('name'));
-			self.sortedBy = self.sortedBy == '' ? 'name' : '';
-			if (self.sortedBy == '') self.contacts.reverse();
-
-		}
-		self.sortContactsEmail = function() {
-			self.contacts.sort(alphaSort('email'));
-			self.sortedBy = self.sortedBy == '' ? 'email' : '';
-			if (self.sortedBy == '') self.contacts.reverse();
-		}
-		self.sortContactsNotes = function() {
-			self.contacts.sort(alphaSort('notes'));
-			self.sortedBy = self.sortedBy == '' ? 'notes' : '';
-			if (self.sortedBy == '') self.contacts.reverse();
 		}
 	}
 	function AddContactViewModel() {

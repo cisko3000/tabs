@@ -99,13 +99,24 @@ $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 					overflow: hidden !important;
 					text-overflow:ellipsis;
 				}
+				.magnified {
+					max-width: none;
+					width:none;
+					font-size:1.2em;
+					font-weight:bold;
+					text-overflow:none;
+				}
 				</style>
 				<table class="table">
 					<tbody>
 					<!-- ko foreach: contacts -->
 					<tr>
 						<td style="width:1%;white-space:nowrap" data-bind="text: name" >Peter Griffin</td>
-						<td ><span data-bind="text: email, event: {mouseover: $parent.magnify, mouseout: $parent.magnifyReset }" class="notes-span-50">peter@griffin.com</span></td>
+						<td >
+							<span data-bind="text: email, event: {mouseover: $parent.magnify, mouseout: $parent.magnifyReset }, css: emailDisplay">
+								peter@griffin.com
+							</span>
+						</td>
 						<td><span data-bind="text: notes" class="notes-span-100">Some notes</span></td>
 						<td><input data-bind="text: id" type="hidden"><span data-bind="click: $parent.beginEdit" style="cursor:pointer" class="glyphicon glyphicon-pencil"> </span></td>
 						<td><span data-bind="click: $parent.remove" style="cursor:pointer" class="glyphicon glyphicon-trash" > </span></td>
@@ -252,7 +263,7 @@ $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 
 
 <!-- Project Modals -->
-<div id="addProject" class="modal fade" tabindex="1" role="dialog" aria-labelledby="addDialogLabel" aria-hidden="true">
+<div id="addProject" class="modal fade" xtabindex="1" role="dialog" aria-labelledby="addDialogLabel" aria-hidden="true">
 	<div class="modal-dialog">
 	<div class="modal-dialog modal-content">
 	<div class="modal-header">
