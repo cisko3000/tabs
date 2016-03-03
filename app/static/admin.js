@@ -38,15 +38,20 @@ $(function(){
 		self.sortedBy = '';
 		//self.magnified = ko.observable('magnified');
 		//self.notesSpan50 = ko.observable('notes-span-50');
-		self.magnify = function(contact, data, event) {
+		self.magnify = function(contact, event) {
 			//console.log(contact);
 			//console.log($(event.target).html());
 			contact.emailDisplay(ko.observable('magnified'));
+			contact.notesDisplay(ko.observable('magnified'));
+			//if ($(event.target).attr('data-type','') == 'email') {contact.emailDisplay('magnified');}
+			//else if ($(event.target).attr('data-type','') == 'notes') {contact.notesDisplay('magnified');}
 		}
-		self.magnifyReset = function(contact, data, event) {
-			console.log(contact);
-			contact.emailDisplay(ko.observable('notes-span-50'));
-			console.log(contact.emailDisplay());
+		self.magnifyReset = function(contact, event) {
+			//console.log(contact);
+			contact.emailDisplay('notes-span-50');
+			contact.notesDisplay('notes-span-100');
+			//if ($(event.target).attr('data-type','') == 'email') {contact.emailDisplay('notes-span-50');}
+			//else if ($(event.target).attr('data-type','') == 'notes') {contact.notesDisplay('notes-span-100');}
 		}
 
 		self.ajax = function(uri, method, data) {
@@ -100,7 +105,8 @@ $(function(){
 					email: 	ko.observable(data[i].email),
 					notes: 	ko.observable(data[i].notes),
 					id: 	ko.observable(data[i].id),
-					emailDisplay : ko.observable('notes-span-50')
+					emailDisplay : ko.observable('notes-span-50'),
+					notesDisplay : ko.observable('notes-span-100')
 				});
 				addProjectViewModel.availableContacts.push(new Contact(data[i].name,data[i].id));
 			}

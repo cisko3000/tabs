@@ -94,7 +94,7 @@ $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 				}
 				.notes-span-100 {
 					display:inline-block;
-					max-width:100px;
+					max-width:150px;
 					white-space: nowrap;
 					overflow: hidden !important;
 					text-overflow:ellipsis;
@@ -102,6 +102,7 @@ $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 				.magnified {
 					max-width: none;
 					width:none;
+					white-space:pre-wrap;
 					font-size:1.2em;
 					font-weight:bold;
 					text-overflow:none;
@@ -114,10 +115,13 @@ $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 						<td style="width:1%;white-space:nowrap" data-bind="text: name" >Peter Griffin</td>
 						<td >
 							<span data-bind="text: email, event: {mouseover: $parent.magnify, mouseout: $parent.magnifyReset }, css: emailDisplay">
-								peter@griffin.com
+								
 							</span>
 						</td>
-						<td><span data-bind="text: notes" class="notes-span-100">Some notes</span></td>
+						<td>
+							<span  data-bind="text: notes, event: {mouseover: $parent.magnify, mouseout: $parent.magnifyReset}, css: notesDisplay">
+							</span>
+						</td>
 						<td><input data-bind="text: id" type="hidden"><span data-bind="click: $parent.beginEdit" style="cursor:pointer" class="glyphicon glyphicon-pencil"> </span></td>
 						<td><span data-bind="click: $parent.remove" style="cursor:pointer" class="glyphicon glyphicon-trash" > </span></td>
 					</tr>
