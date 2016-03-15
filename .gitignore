@@ -1,4 +1,5 @@
 *.pyc
+tabs.db
 true_config.py
 passenger_wsgi.py
 tmp
