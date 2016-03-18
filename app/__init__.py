@@ -43,13 +43,25 @@ from mod_auth.forms import LoginForm
 from werkzeug import check_password_hash, \
 	generate_password_hash
 
+from flask.ext.admin.contrib import sqla
+from flask.ext import admin
+from flask.ext.admin import expose
 
+class CustomModelView(sqla.ModelView):
+	def is_accessible(self):
+		return current_user.is_authenticated
+class CustomAdminIndexView(admin.AdminIndexView):
+	@expose('/')
+	def index(self):
+		if not current_user.is_authenticated:
+			return redirect(url_for('login'))
+		return super(CustomAdminIndexView, self).index()
 # create greg app
 def create_app():
 	app = Flask(__name__, static_url_path='')
 	app.config.from_object('true_config')
 
-	admin = Admin(app)
+	admin = Admin(app, index_view = CustomAdminIndexView())
 	db.init_app(app)
 	with app.app_context():
 		db.create_all()
@@ -69,12 +81,13 @@ def create_app():
 	app.extensions['bootstrap']['cdns']['paper'] = WebCDN("https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.5/paper/")
 	app.extensions['bootstrap']['cdns']['sandstone'] = WebCDN("https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.5/sandstone/")
 
-	admin.add_view(ModelView(Contact,db.session))
-	admin.add_view(ModelView(TimeEntry,db.session))
-	admin.add_view(ModelView(Project,db.session))
-	admin.add_view(ModelView(Invoice,db.session))
-	admin.add_view(ModelView(InvoiceLine,db.session))
-	admin.add_view(ModelView(User,db.session))
+
+	admin.add_view(CustomModelView(Contact,db.session))
+	admin.add_view(CustomModelView(TimeEntry,db.session))
+	admin.add_view(CustomModelView(Project,db.session))
+	admin.add_view(CustomModelView(Invoice,db.session))
+	admin.add_view(CustomModelView(InvoiceLine,db.session))
+	admin.add_view(CustomModelView(User,db.session))
 	admin.add_link(MenuLink('TBiller',endpoint='home'))
 
 	login_manager = LoginManager()
