@@ -150,22 +150,13 @@ $(function(){
 			});
 		}
 
-		self.sortContactsName = function() {
-			self.contacts.sort(alphaSort('name'));
-			self.sortedBy = self.sortedBy == '' ? 'name' : '';
+		self.sortContacts = function(column) {
+			self.contacts.sort(alphaSort(column));
+			self.sortedBy = self.sortedBy == '' ? column : '';
 			if (self.sortedBy == '') self.contacts.reverse();
 
 		}
-		self.sortContactsEmail = function() {
-			self.contacts.sort(alphaSort('email'));
-			self.sortedBy = self.sortedBy == '' ? 'email' : '';
-			if (self.sortedBy == '') self.contacts.reverse();
-		}
-		self.sortContactsNotes = function() {
-			self.contacts.sort(alphaSort('notes'));
-			self.sortedBy = self.sortedBy == '' ? 'notes' : '';
-			if (self.sortedBy == '') self.contacts.reverse();
-		}
+		
 	}
 	function ProjectsViewModel() {
 		var self = this;

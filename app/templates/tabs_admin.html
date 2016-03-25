@@ -77,9 +77,9 @@ $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 					</div>
 					<div class="btn-group btn-group-sm pull-right" role="group" aria-label="sort-contacts">
 						<span class="glyphicon glyphicon-sort" style="padding-right:2px;"></span>
-						<button data-bind="click: sortContactsName"  type="button" class="">Name</button>
-						<button data-bind="click: sortContactsEmail" type="button" class="">Email</button>
-						<button data-bind="click: sortContactsNotes" type="button" class="">Notes</button>
+						<button data-bind="click: function() {sortContacts('name')}" type="button" class="">Name</button>
+						<button data-bind="click: function() {sortContacts('email')}" type="button" class="">Email</button>
+						<button data-bind="click: function() {sortContacts('notes')}" type="button" class="">Notes</button>
 					</div>
 				</div>
 				<!--<div class="panel-body">
