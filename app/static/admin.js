@@ -144,6 +144,8 @@ $(function(){
 		}
 		function alphaSort(dtype) {
 			return function(left, right) {
+				if (!left[dtype]()) return 1;
+				else if (!right[dtype]()) return 0;
 				return left[dtype]().toLowerCase() == right[dtype]().toLowerCase() ? 0 : (left[dtype]().toLowerCase() < right[dtype]().toLowerCase() ? -1: 1);
 			};
 		}
@@ -219,6 +221,7 @@ $(function(){
 			var i = self.projects.indexOf(project);
 			self.projects()[i].contact(newProject.contact);
 			self.projects()[i].name(newProject.name);
+			console.log(self.projects()[i]);
 		}
 		self.ajax(self.projectsURI, 'GET').done(function(data) {
 			for (var i = 0; i < data.length; i++) {
@@ -298,12 +301,19 @@ $(function(){
 		self.editProject = function() {
 			$('#editProject').modal('hide');
 			projectsViewModel.edit(self.project, {
-				project_name: self.contact(),
-				project_email:self.name(),
+				project_contact_id: self.contact_id,
+				project_name: self.name(),
 				project_notes:self.notes(),
 				project_id: self.id()
 			});
 		}
+
+		//contact_id: ko.observable(data.contact_id),
+		//contact: ko.observable(data.contact),
+		//name: ko.observable(data.name),
+		//notes: ko.observable(data.notes),
+		//id: ko.observable(data.id),
+		//total: 	ko.observable(111)
 	}
 	function AddContactViewModel() {
 		var self = this;

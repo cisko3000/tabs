@@ -49,9 +49,12 @@ parser.add_argument('contact_name',  type=str, help='Contact Name')
 parser.add_argument('contact_email', type=str, help='Contact Email')
 parser.add_argument('contact_notes', type=str, help='Contact Notes')
 parser.add_argument('contact_id', type=int, help='Contact ID')
-parser.add_argument('project_contact', type=str, help='Contact ID')
+
+parser.add_argument('project_contact_id', type=str, help='Contact ID')
 parser.add_argument('project_name', type=str, help='Project Name')
 parser.add_argument('project_notes', type=str, help='Project Notes')
+parser.add_argument('project_id', type=str, help='Project ID')
+
 parser.add_argument('sstr', type=str, help='Search String', location='args')
 
 # Single Resources
@@ -93,8 +96,15 @@ class TabsProject(Resource):
 		to_del = Project.query.get(project_id)
 		db.session.delete(to_del)
 		db.session.commit()
-		return []		
-
+		return []
+	def put(self, project_id):
+		abort_if_dne(Project, project_id)
+		args = parser.parse_args()
+		p = Project.query.get(project_id)
+		p.name = args['project_name']
+		p.contact_id = args['project_contact_id']
+		p.notes = args['project_notes']
+		return p
 class TabsTimeEntry(Resource):
 	decorators = [login_required]
 	@marshal_with(time_entry)
