@@ -97,6 +97,7 @@ class TabsProject(Resource):
 		db.session.delete(to_del)
 		db.session.commit()
 		return []
+	@marshal_with(project_fields)
 	def put(self, project_id):
 		abort_if_dne(Project, project_id)
 		args = parser.parse_args()
@@ -104,6 +105,7 @@ class TabsProject(Resource):
 		p.name = args['project_name']
 		p.contact_id = args['project_contact_id']
 		p.notes = args['project_notes']
+		db.session.commit()
 		return p
 class TabsTimeEntry(Resource):
 	decorators = [login_required]

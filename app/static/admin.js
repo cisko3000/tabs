@@ -6,6 +6,13 @@ $(function(){
     		timer = setTimeout(callback, ms);
   			};
 	}) ();
+	function alphaSort(dtype) {
+		return function(left, right) {
+			if (!left[dtype]()) return 1;
+			else if (!right[dtype]()) return 0;
+			return left[dtype]().toLowerCase() == right[dtype]().toLowerCase() ? 0 : (left[dtype]().toLowerCase() < right[dtype]().toLowerCase() ? -1: 1);
+		};
+	}
 	// Constructors
 	var Contact = function(name,id) {
 			this.name = name;
@@ -142,13 +149,7 @@ $(function(){
 				self.contacts.remove(contact);
 			});
 		}
-		function alphaSort(dtype) {
-			return function(left, right) {
-				if (!left[dtype]()) return 1;
-				else if (!right[dtype]()) return 0;
-				return left[dtype]().toLowerCase() == right[dtype]().toLowerCase() ? 0 : (left[dtype]().toLowerCase() < right[dtype]().toLowerCase() ? -1: 1);
-			};
-		}
+
 		self.sortContactsName = function() {
 			self.contacts.sort(alphaSort('name'));
 			self.sortedBy = self.sortedBy == '' ? 'name' : '';
@@ -221,6 +222,7 @@ $(function(){
 			var i = self.projects.indexOf(project);
 			self.projects()[i].contact(newProject.contact);
 			self.projects()[i].name(newProject.name);
+			self.projects()[i].notes(newProject.notes);
 			console.log(self.projects()[i]);
 		}
 		self.ajax(self.projectsURI, 'GET').done(function(data) {
@@ -251,6 +253,12 @@ $(function(){
 					});
 				}
 			});
+		}
+		self.sortProjects = function(column) {
+			self.projects.sort(alphaSort(column));
+			self.sortedBy = self.sortedBy == '' ? column : '';
+			if (self.sortedBy == '') self.projects.reverse();
+
 		}
 	}
 	function AddProjectViewModel() {
@@ -301,7 +309,7 @@ $(function(){
 		self.editProject = function() {
 			$('#editProject').modal('hide');
 			projectsViewModel.edit(self.project, {
-				project_contact_id: self.contact_id,
+				project_contact_id: self.contact_id(),
 				project_name: self.name(),
 				project_notes:self.notes(),
 				project_id: self.id()
