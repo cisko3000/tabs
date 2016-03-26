@@ -124,7 +124,10 @@ class ContactList(Resource):
 		try:
 			args = parser.parse_args()
 			search_string = args['sstr']
-			return Contact.query.filter(or_(
+			if search_string == '':
+				return Contact.query.all()
+			else:
+				return Contact.query.filter(or_(
 				Contact.name.contains(search_string),
 				Contact.notes.contains(search_string),
 				)).all()
@@ -177,23 +180,6 @@ class TimeEntryList(Resource):
 	decorators = [login_required]
 	@marshal_with(time_entries)
 	def get(self):
-		'''
-		query = None
-		try:
-			args = parser.parse_args()
-			search_string = args['sstr']
-			if search_string != '':
-			#query =  TimeEntry.query.join(Project).filter(Project.name.contains(search_string))
-				query = db.session.query(TimeEntry).join(Project).filter(Project.name.contains(search_string))
-				query = db.session.query(TimeEntry).join(Project)
-				sum_query = query.with_entities(func.sum(TimeEntry.delta).label('entries_total'))
-		except ValueError as e:
-			print "Unexpected error:", sys.exc_info()[0], e
-			pass
-		if query == None:
-			query = db.session.query(TimeEntry).join(Project)
-			sum_query = db.session.query(func.sum(TimeEntry.delta).label('entries_total'))
-		'''
 		reg_q = db.session.query(TimeEntry).join(Project)
 		sum_q = db.session.query(func.sum(TimeEntry.delta).label('entries_total'))
 		try:

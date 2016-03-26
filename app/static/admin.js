@@ -13,6 +13,13 @@ $(function(){
 			return left[dtype]().toLowerCase() == right[dtype]().toLowerCase() ? 0 : (left[dtype]().toLowerCase() < right[dtype]().toLowerCase() ? -1: 1);
 		};
 	}
+	function timeSort(dtype) {
+		return function(left, right) {
+			if (!left[dtype]()) return 1;
+			else if (!right[dtype]()) return 0;
+			return left[dtype]() == right[dtype]() ? 0 : (left[dtype]() < right[dtype]() ? -1: 1);
+		};
+	}
 	// Constructors
 	var Contact = function(name,id) {
 			this.name = name;
@@ -120,7 +127,6 @@ $(function(){
 		});
 		self.search_for = function(the_term) {
 			var data = {sstr:the_term};
-			console.log(data);
 			self.ajax_search(self.contactsURI, 'GET' ,data).done(function(data) {
 				self.contacts.removeAll();
 				for (var i = 0; i < data.length; i++) {
@@ -128,7 +134,9 @@ $(function(){
 						name: 	ko.observable(data[i].name),
 						email: 	ko.observable(data[i].email),
 						notes: 	ko.observable(data[i].notes),
-						id: 	ko.observable(data[i].id)
+						id: 	ko.observable(data[i].id),
+						emailDisplay : ko.observable('notes-span-50'),
+						notesDisplay : ko.observable('notes-span-100')
 					});
 				}
 			});
@@ -155,8 +163,7 @@ $(function(){
 			self.sortedBy = self.sortedBy == '' ? column : '';
 			if (self.sortedBy == '') self.contacts.reverse();
 
-		}
-		
+		}	
 	}
 	function ProjectsViewModel() {
 		var self = this;
@@ -250,6 +257,88 @@ $(function(){
 			self.sortedBy = self.sortedBy == '' ? column : '';
 			if (self.sortedBy == '') self.projects.reverse();
 
+		}
+	}
+	function EntriesViewModel() {
+		var self = this;
+		self.entriesURI = $SCRIPT_ROOT+'/api/entries';
+		self.entryURI = $SCRIPT_ROOT+'/api/entry/';
+		self.entries = ko.observableArray();
+		self.entries_total = ko.observable();
+		self.sortedBy = '';
+		self.ajax = function(uri, method, data) {
+			var localRequest = request;
+			localRequest.url = uri;
+			localRequest.method = method;
+			localRequest.data = JSON.stringify(data);
+			return $.ajax(localRequest);
+		}
+		self.ajax(self.entriesURI, 'GET').done(function(data) {
+			for (var i = 0; i < data[0].entries.length; i++) {
+				var dtemp = data[0].entries[i];
+				var dateArray = dtemp.start.split(' ');
+				var timeArray = dateArray[1].split(':');
+				dateArray = dateArray[0].split('/');
+				self.entries.push({
+					project_name: 	ko.observable(dtemp.project_name),
+					start: 	ko.observable(dtemp.start),
+					stop: 	ko.observable(dtemp.stop),
+					delta: 	ko.observable(dtemp.delta),
+					start_date : ko.observable(new Date(
+						dateArray[2]+2000,dateArray[0]-1,dateArray[1],
+						timeArray[0], timeArray[1],0)),
+				});
+			}
+			self.entries_total(data[0].entries_total);
+		});
+		function alphaSort(dtype) {
+			return function(left, right) {
+				return left[dtype]().toLowerCase() == right[dtype]().toLowerCase() ? 0 : (left[dtype]().toLowerCase() < right[dtype]().toLowerCase() ? -1 : 1);
+			};
+		}
+		function numSort(dtype) {
+			return function(left, right) {
+				return parseFloat(left[dtype]()) == parseFloat(right[dtype]()) ? 0 : (parseFloat(left[dtype]()) < parseFloat(right[dtype]()) ? -1 : 1);
+			};
+		}
+		self.sortEntriesProjectName = function() {
+			self.entries.sort(alphaSort('project_name'));
+			self.sortedBy = self.sortedBy == '' ? 'project_name' : '';
+			if (self.sortedBy == '') self.entries.reverse();
+		}
+		self.sortEntriesStart = function() {
+			self.entries.sort(timeSort('start_date'));
+			self.sortedBy = self.sortedBy == '' ? 'start' : '';
+			if (self.sortedBy == '') self.entries.reverse();
+		}
+		self.sortEntriesDuration = function() {
+			self.entries.sort(numSort('delta'));
+			self.sortedBy = self.sortedBy == '' ? 'delta' : '';
+			if (self.sortedBy == '') self.entries.reverse();
+		}
+		self.ajax_search = function (uri, method, data) {
+			var localRequest = search_request;
+			localRequest.url = uri;
+			localRequest.method = method;
+			localRequest.data = data;
+			return $.ajax(localRequest);
+		}
+		self.search_for = function(the_term) {
+			var data = {sstr:the_term};
+			console.log(data);
+			self.ajax_search(self.entriesURI, 'GET' ,data).done(function(data) {
+				self.entries.removeAll();
+				for (var i = 0; i < data[0].entries.length; i++) {
+					var dtemp = data[0].entries[i];
+					self.entries.push({
+						project_name: 	ko.observable(dtemp.project_name),
+						start: 	ko.observable(dtemp.start),
+						stop: 	ko.observable(dtemp.stop),
+						delta: 	ko.observable(dtemp.delta)
+					});
+				}
+				self.entries_total(data[0].entries_total);
+			});
 		}
 	}
 	function AddProjectViewModel() {
@@ -362,82 +451,6 @@ $(function(){
 		}
 	}
 
-	function EntriesViewModel() {
-		var self = this;
-		self.entriesURI = $SCRIPT_ROOT+'/api/entries';
-		self.entryURI = $SCRIPT_ROOT+'/api/entry/';
-		self.entries = ko.observableArray();
-		self.entries_total = ko.observable();
-		self.sortedBy = '';
-		self.ajax = function(uri, method, data) {
-			var localRequest = request;
-			localRequest.url = uri;
-			localRequest.method = method;
-			localRequest.data = JSON.stringify(data);
-			return $.ajax(localRequest);
-		}
-		self.ajax(self.entriesURI, 'GET').done(function(data) {
-			for (var i = 0; i < data[0].entries.length; i++) {
-				var dtemp = data[0].entries[i];
-				self.entries.push({
-					project_name: 	ko.observable(dtemp.project_name),
-					start: 	ko.observable(dtemp.start),
-					stop: 	ko.observable(dtemp.stop),
-					delta: 	ko.observable(dtemp.delta)
-				});
-			}
-			self.entries_total(data[0].entries_total);
-		});
-		function alphaSort(dtype) {
-			return function(left, right) {
-				return left[dtype]().toLowerCase() == right[dtype]().toLowerCase() ? 0 : (left[dtype]().toLowerCase() < right[dtype]().toLowerCase() ? -1 : 1);
-			};
-		}
-		function numSort(dtype) {
-			return function(left, right) {
-				return parseFloat(left[dtype]()) == parseFloat(right[dtype]()) ? 0 : (parseFloat(left[dtype]()) < parseFloat(right[dtype]()) ? -1 : 1);
-			};
-		}
-		self.sortEntriesProjectName = function() {
-			self.entries.sort(alphaSort('project_name'));
-			self.sortedBy = self.sortedBy == '' ? 'project_name' : '';
-			if (self.sortedBy == '') self.entries.reverse();
-		}
-		self.sortEntriesStart = function() {
-			self.entries.sort(alphaSort('start'));
-			self.sortedBy = self.sortedBy == '' ? 'start' : '';
-			if (self.sortedBy == '') self.entries.reverse();
-		}
-		self.sortEntriesDuration = function() {
-			self.entries.sort(numSort('delta'));
-			self.sortedBy = self.sortedBy == '' ? 'delta' : '';
-			if (self.sortedBy == '') self.entries.reverse();
-		}
-		self.ajax_search = function (uri, method, data) {
-			var localRequest = search_request;
-			localRequest.url = uri;
-			localRequest.method = method;
-			localRequest.data = data;
-			return $.ajax(localRequest);
-		}
-		self.search_for = function(the_term) {
-			var data = {sstr:the_term};
-			console.log(data);
-			self.ajax_search(self.entriesURI, 'GET' ,data).done(function(data) {
-				self.entries.removeAll();
-				for (var i = 0; i < data[0].entries.length; i++) {
-					var dtemp = data[0].entries[i];
-					self.entries.push({
-						project_name: 	ko.observable(dtemp.project_name),
-						start: 	ko.observable(dtemp.start),
-						stop: 	ko.observable(dtemp.stop),
-						delta: 	ko.observable(dtemp.delta)
-					});
-				}
-				self.entries_total(data[0].entries_total);
-			});
-		}
-	}
 	// Contacts
 	var contactsViewModel = new ContactsViewModel();
 	var addContactViewModel = new AddContactViewModel();
