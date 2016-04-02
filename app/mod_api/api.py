@@ -59,10 +59,12 @@ parser.add_argument('sstr', type=str, help='Search String', location='args')
 
 # Single Resources
 class TabsContact(Resource):
+	decorators = [login_required]
 	@marshal_with(contact_fields)
 	def get(self, contact_id):
 		abort_if_dne(Contact, contact_id)
 		return db.session.query(Contact).get(contact_id)
+	decorators = [login_required]
 	@marshal_with(contact_fields)
 	def delete(self, contact_id):
 		abort_if_dne(Contact, contact_id)
@@ -70,6 +72,7 @@ class TabsContact(Resource):
 		db.session.delete(to_del)
 		db.session.commit()
 		return []
+	decorators = [login_required]
 	@marshal_with(contact_fields)
 	def put(self, contact_id):
 		abort_if_dne(Contact, contact_id)
@@ -214,6 +217,7 @@ api.add_resource(TabsProject,  '/project/<project_id>')
 api.add_resource(TabsTimeEntry,'/time_entries/<time_entry_id>')
 api.add_resource(ContactList,  '/contacts')
 api.add_resource(ProjectList,  '/projects')
-api.add_resource(TimeEntryList,  '/entries')
+api.add_resource(TimeEntryList,'/entries')
+
 
 

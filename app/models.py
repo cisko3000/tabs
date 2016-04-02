@@ -69,6 +69,8 @@ class InvoiceLine(db.Model):
 	unit_price = db.Column(db.Float())
 	amount = db.Column(db.Float())
 	time_entries = db.relationship("TimeEntry") # Parent(this table) to Child(TimeEntry)
+	invoice_id = db.Column(db.Integer, db.ForeignKey('invoice.id'))
+	invoice = db.relationship("Invoice", backref="invoice_lines")
 	def __repr__(self):
 		return self.description
 		return self.description
