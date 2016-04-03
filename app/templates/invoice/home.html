@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block navbar %}
+{{ super() }}
+{% endblock navbar %}
+
+
+
+{% block content %}
+
+<div class="container">
+	<div class="row">
+		<div class="col-md-5">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<div class="panel-title">Timer</div>
+				</div>
+				<div class="panel-body">
+					<form class="" role="form" action="{{ url_for('home') }}" method="post">
+						<div class="form-group">
+							<label for="project">Project:</label>
+							<select name="project_id">
+								<option>project 1</option>
+								<option>project 2</option>
+							</select>
+					    </div>
+							<button type="submit" class="btn btn-primary pull-right"  id="start">Get Hours</button>
+					</form>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-5">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<div class="panel-title">Hours</div>
+				</div>
+				<div class="panel-body">
+					<form class="" role="form" action="{{ url_for('home') }}" method="post">
+						<div class="form-group">
+							<table>
+								<tr>
+									<td>
+
+									</td>
+									<td>
+										
+									</td>
+								</tr>
+							</table>
+					    </div>
+							<button type="submit" class="btn btn-primary pull-right"  id="start">Create Invoice</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="container-fluid">
+<div class="row">
+	<div class="col-sm-12">
+		<div xclass="panel panel-default">
+			<!--<div class="panel-heading">
+				<div class="panel-title">Current Week:</div>
+			</div>-->
+			Invoices:
+			
+			<table class="table" style="display:none;"><tr><td><p><i>No invoices</i></p></td></tr></table>
+
+			<!--<div class="panel-body"><p><i>No entries</i></p></div>-->
+			<table class="table">
+				<!--<tr>
+					<th>Contact</th><th style="text-align:right">Amount</th></tr>
+				<tr>-->
+					<td nowrap>#1001</td>
+					<td nowrap>contact name</td>
+					<td nowrap style="text-align:right">$1,200</td>
+				</tr>
+				<tr>
+					<td>&nbsp;</td>
+					<td colspan=1 style="text-align:right">&nbsp;</td>
+					<td  style="text-align:right">$ 1,200</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+</div>
+</div>
+
+{% endblock content %}

@@ -7,7 +7,7 @@ from .. import db
 from app.models import *
 
 
-mod_invoice = Blueprint('tabs_invoice', __name__, url_prefix='/invoice')
+mod_invoice = Blueprint('invoices', __name__, url_prefix='/invoice')
 
 
 @mod_invoice.route('/create_invoice', methods=['POST'])
@@ -105,9 +105,9 @@ def create_invoice_final():
 		errror = paypal_invoice.error
 		return redirect('/invoices')
 		#return 'failure'
-@mod_invoice.route('/invoices',methods=['GET'])
+@mod_invoice.route('/',methods=['GET'])
 @login_required
-def invoices():
+def home():
 	try: error
 	except NameError: error = None 
 	class CreateInvoiceForm(Form):
@@ -115,5 +115,6 @@ def invoices():
 	create_invoice_form = CreateInvoiceForm()
 	create_invoice_form.contact.choices = [(str(contact.name),str(contact.name)) for contact in Contact.query.all()]
 	invoices = Invoice.query.all()
-	return render_template('invoices.html',invoices=invoices, create_invoice_form=create_invoice_form, error=error)
+	return render_template('invoice/home.html')
+	#return render_template('invoices.html',invoices=invoices, create_invoice_form=create_invoice_form, error=error)
 

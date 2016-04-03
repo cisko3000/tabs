@@ -10,10 +10,22 @@ from .. import db
 
 # Marshals
 invoice_fields = {
-	
+	'id' : fields.Integer,
+	'invoice_date' : fields.Date,
+	'contact_id' : fields.Integer,
+	'contact' : fields.String,
+	'recipient_note' : fields.String,
+	'subtotal' : fields.Decimal,
+	'total' : fields.Decimal,
+	'paid' : fields.Decimal,	
 }
 invoice_line_fields = {
-	
+	'id': fields.Integer,
+	'description' : fields.String,
+	'quantity': fields.Decimal,
+	'unit_price' : fields.Decimal,
+	'amount' : fields.Decimal,
+	'invoice_id' : fields.Integer,
 }
 
 def abort_if_dne(model_type, model_id):

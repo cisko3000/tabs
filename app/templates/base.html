@@ -23,7 +23,7 @@
       		<div class="collapse navbar-collapse" id="menu-collapse">
 				<ul class="nav navbar-nav">
 					<li {% if request.url_rule.endpoint == "home" %} class="active" {% endif %}><a href="{{ url_for('home') }}">home</a></li>
-					<li {% if request.url_rule.endpoint == "tabs_invoice.invoices" %} class="active" {% endif %}><a href="{{ url_for('tabs_invoice.invoices') }}">invoices</a></li>
+					<li {% if request.url_rule.endpoint == "invoices.home" %} class="active" {% endif %}><a href="{{ url_for('invoices.home') }}">invoices</a></li>
 					<li {% if request.url_rule.endpoint == "tabs_admin" %} class="active" {% endif %}><a href="{{ url_for('tabs_admin') }}">admin</a></li>
 					<!--<li class="dropdown">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="dropdown" aria-haspopup="true" aria-expanded="false">admin <span class="caret"></span>
