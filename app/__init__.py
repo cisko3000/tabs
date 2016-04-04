@@ -68,8 +68,10 @@ def create_app():
 	
 	# Import modules 
 	from app.mod_invoice.controllers import mod_invoice as invoice_module
+	from app.mod_reporting.controllers import mod_reporting as reporting_module
 	from app.mod_api.api import api_mod as api_module
 	app.register_blueprint(invoice_module)
+	app.register_blueprint(reporting_module)
 	app.register_blueprint(api_module)
 	
 	Bootstrap(app)
@@ -267,6 +269,11 @@ def create_app():
 	@login_required
 	def admin():
 		return redirect('/admin')
+
+	@app.route('/settings')
+	@login_required
+	def settings():
+		return render_template('settings.html')	
 	return app
 
 if __name__ == '__main__':

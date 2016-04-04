@@ -5,7 +5,8 @@ from flask.ext.wtf import Form
 from wtforms import validators, widgets, TextField, SelectField, DecimalField, BooleanField, DateField, FieldList, FormField, FloatField, TextAreaField
 from .. import db
 from app.models import *
-
+from wtforms.ext.sqlalchemy.orm import model_form
+from custom_wtforms import Select2Widget, Select2Field
 
 mod_invoice = Blueprint('invoices', __name__, url_prefix='/invoice')
 
@@ -115,6 +116,15 @@ def home():
 	create_invoice_form = CreateInvoiceForm()
 	create_invoice_form.contact.choices = [(str(contact.name),str(contact.name)) for contact in Contact.query.all()]
 	invoices = Invoice.query.all()
-	return render_template('invoice/home.html')
+	GetHoursForm = model_form(TimeEntry, db_session=db.session, field_args = {
+				'project' : {
+					#'widget': Select2Widget(multiple = False),
+					'widget': Select2Widget(),
+					
+				}
+		})
+	time_entry_model = TimeEntry()
+	get_hours_form = GetHoursForm(request.form, time_entry_model)
+	return render_template('invoice/home.html', get_hours_form= get_hours_form)
 	#return render_template('invoices.html',invoices=invoices, create_invoice_form=create_invoice_form, error=error)
 

@@ -13,19 +13,14 @@
 		<div class="col-md-5">
 			<div class="panel panel-default">
 				<div class="panel-heading">
-					<div class="panel-title">Timer</div>
+					<div class="panel-title">Source</div>
 				</div>
 				<div class="panel-body">
-					<form class="" role="form" action="{{ url_for('home') }}" method="post">
-						<div class="form-group">
-							<label for="project">Project:</label>
-							<select name="project_id">
-								<option>project 1</option>
-								<option>project 2</option>
-							</select>
-					    </div>
-							<button type="submit" class="btn btn-primary pull-right"  id="start">Get Hours</button>
-					</form>
+					<div class="form-group">
+						<label for="project">Project:</label>
+				 		{{ get_hours_form.project }}
+				    </div>
+						<button type="submit" class="btn btn-primary pull-right"  id="start">Get Hours</button>
 				</div>
 			</div>
 		</div>
@@ -35,21 +30,19 @@
 					<div class="panel-title">Hours</div>
 				</div>
 				<div class="panel-body">
-					<form class="" role="form" action="{{ url_for('home') }}" method="post">
-						<div class="form-group">
-							<table>
-								<tr>
-									<td>
+					<div class="form-group">
+						<table>
+							<tr>
+								<td>
 
-									</td>
-									<td>
-										
-									</td>
-								</tr>
-							</table>
-					    </div>
-							<button type="submit" class="btn btn-primary pull-right"  id="start">Create Invoice</button>
-					</form>
+								</td>
+								<td>
+									
+								</td>
+							</tr>
+						</table>
+				    </div>
+					<button type="submit" class="btn btn-primary pull-right"  id="start">Create Invoice</button>
 				</div>
 			</div>
 		</div>
