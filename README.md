@@ -4,9 +4,17 @@ TABS (Time And Billing System)
 ------------------------------------------------------------------
 # Bugs
 TODO
-Update project contacts menu
-Add project doesn't work
-Deselects project on start and stop
+implement calendar date range.
+
+angular.js bugs
+filter does not re calculate project.delta total
+
+
+knockout.js bugs
+Update project contacts menu (knockout.js interface only)
+Add project doesn't work (knockout.js interface only)
+Deselects project on start and stop (knockout.js interface only)
+
 
 
 # Features
@@ -26,9 +34,6 @@ Deselects project on start and stop
 8.  `python run.py` to run app
 
 # Notes
-The custom admin interface is still under construction. You can edit database records through flask-admin.
-flask-admin view is accessible at "web.app.url.com/admin"
-That is all!
-
+N/A
 
 
