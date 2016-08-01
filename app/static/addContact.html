@@ -1,0 +1,53 @@
+<!-- <div id="addContact" class="modal fade" tabindex="1" role="dialog" aria-labelledby="addDialogLabel" aria-hidden="true"> -->
+	<div class="modal-dialog">
+	<div class="modal-dialog modal-content">
+	<div class="modal-header">
+		<button ng-click="cancel()" type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+		<h3 id="addDialogLabel">Add Contact</h3>
+	</div>
+	<div class="modal-body">
+		<form class="form-horizontal">
+			<div class="control-group">
+				<label  class="control-label" for="inputContactName">Contact Name</label>
+				<input ng-model="data.cname" class="form-control"  type="text" id="inputContactName">
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="inputContactEmail">Email</label>
+				<input ng-model="data.cemail" class="form-control"  type="text" id="inputContactEmail">
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="inputContactName">Notes</label>
+				<textarea ng-model="data.cnotes" class="form-control"  id="inputContactNotes"></textarea>
+			</div>
+		</form>
+		<div class="modal-footer">
+			<button  ng-click="addContact()" class="btn btn-primary pull-right">{{data.confirmLabel}}</button>
+			<button  ng-click="cancel()" data-dismiss="modal" aria-hidden="true" class="btn btn-secondary">Cancel</button>&nbsp;&nbsp;&nbsp;
+		</div>
+	</div>
+	</div>
+	</div>
+<!-- </div> -->
+
+
+
+<!-- <div class="modal-dialog">
+  <div class="modal-content">
+    <div class="modal-header">
+      <button type="button" class="close" ng-click="cancel()">&times;</button>
+      <h4 class="modal-title">Modal title</h4>
+    </div>
+    <div class="modal-body">
+      <ul>
+        <li ng-repeat="item in items">
+          <a ng-click="selected.item=item"></a>
+        </li>
+      </ul>
+      <div>Selected Item: </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-default" ng-click="cancel()">Close</button>
+      <button type="button" class="btn btn-primary" ng-click="ok()">Save changes</button>
+    </div>
+  </div>--><!-- /.modal-content -->
+<!-- </div>/.modal-dialog --> 

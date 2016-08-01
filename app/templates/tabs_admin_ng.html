@@ -1,0 +1,264 @@
+{% extends 'base.html' %}
+
+{% block navbar %}
+{{ super() }}
+{% endblock navbar %}
+
+{% block head %}
+{{ super() }}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2-rc.1/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.2-rc.1/js/select2.min.js"></script>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<!-- <script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-2.2.1.js"></script> -->
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+<!-- <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.js"></script> -->
+<!-- <script src="https://rawgit.com/dwmkerr/angular-modal-service/master/dst/angular-modal-service.js"></script> -->
+<script src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.6.0.js"></script>
+
+<script>
+$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+</script>
+<script src="{{ url_for('static', filename="admin_ng.js")}}?{{dtime}}"></script>
+<style>
+.modal {
+	display:block;
+}
+</style>
+{% endblock %}
+{% block title %}TABS - Time And Billing System  {% endblock %}
+{% block content %}
+
+
+{% raw %}
+<div ng-app="tabsData">
+<div class="container"><!-- Search -->
+	<div class="row">
+		<div class="col-md-offset-2  col-md-8">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<label for="sstr" class="panel-title">Search All:</label>
+				<!--</div>
+				<div class="panel-body">-->
+					<form class="" role="form" action="{{ url_for('home') }}" method="post">
+						<div class="input-group">
+							<!--<label for="sstr">Search All:</label>-->
+							<input ng-model="searchText" type="text" class="form-control" name="sstr" autocomplete="off">
+						    <div class="input-group-btn">
+						    	
+						    	<button  type="button" class="btn btn-secondary" data-toggle="dropdown"  id="date-range-button" style="border: 1px solid #dfd7ca">
+									<span class="glyphicon glyphicon-calendar"></span>
+								</button>
+								<ul class="dropdown-menu dropdown-menu-right" style="padding:15px">
+									<li>
+										<div class="input-group">
+											<label for="sstr_from" class="panel-title">From</label>
+											<input id="sstr_from" class="form-control" type="date">
+										</div>
+									</li>
+									<li role="separator" class="divider"></li>
+									<li>
+										<div class="input-group">
+											<label for="sstr_to" class="panel-title">To</label>
+											<input id="sstr_to" class="form-control" type="date">
+										</div>
+									</li>
+								</ul>
+								<button type="button" class="btn btn-secondary"  id="start" style="border: 1px solid #dfd7ca">
+									<span class="glyphicon glyphicon-search"></span>
+								</button>
+							</div>
+					    </div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div> <!-- container - Search -->
+
+<div class="container-fluid"> <!-- Tabs Data -->
+	<div class="row">
+		<div class="col-md-4">
+			<div class="panel panel-default" id="contacts_container"  ng-controller="myContacts">
+				<div class="panel-heading" >
+					<div class="panel-title" style="display:inline;">Contacts</div>
+					<div class="btn-group btn-group-sm pull-right" role="group" aria-label="">
+						<button  ng-click="contactAddBegin()" class="text-invert pull-right">New <span class=" glyphicon glyphicon-plus"></span></button>
+					</div>
+					<div class="btn-group btn-group-sm pull-right" role="group" aria-label="sort-contacts">
+						<span class="glyphicon glyphicon-sort" style="padding-right:2px;"></span>
+						<button ng-click="sortBy('name')" type="button" class="">Name</button>
+						<button ng-click="sortBy('email')" type="button" class="">Email</button>
+						<button ng-click="sortBy('notes')" type="button" class="">Notes</button>
+					</div>
+				</div>
+				<!--<div class="panel-body">
+				</div>-->
+				<style>
+				.notes-span-50 {
+					display:inline-block;
+					max-width:80px;
+					white-space: nowrap;
+					overflow: hidden !important;
+					text-overflow:ellipsis;
+				}
+				.notes-span-100 {
+					display:inline-block;
+					max-width:150px;
+					white-space: nowrap;
+					overflow: hidden !important;
+					text-overflow:ellipsis;
+				}
+				.magnified {
+					max-width: none;
+					width:none;
+					white-space:pre-wrap;
+					font-size:1.2em;
+					font-weight:bold;
+					text-overflow:none;
+				}
+				</style>
+				<table  class="table">
+					<tbody >
+					<tr ng-repeat="x in contacts | orderBy:propertyName:reverse | filter:searchText" >
+						<td style="xwidth:1%;white-space:nowrap"  >{{x.name}}</td>
+						<td >
+							<span >
+								{{ x.email }}
+							</span>
+						</td>
+						<td>
+							<span  >
+								{{ x.notes }}
+							</span>
+						</td>
+						<td><input  type="hidden">
+							<span  ng-click="contactEditBegin(x)" style="cursor:pointer" class="glyphicon glyphicon-pencil"> </span></td>
+						<td><span  ng-click="deleteContact(x)" style="cursor:pointer" class="glyphicon glyphicon-trash" > </span></td>
+					</tr>
+				</tbody>
+				</table>
+
+			</div>
+		</div>
+		<div class="col-md-3">
+			<div class="panel panel-default" id="projects_container" ng-controller="myProjects"> 
+				<div class="panel-heading">
+					<div class="panel-title" style="display:inline">Projects</div>
+					<div class="btn-group btn-group-sm pull-right" role="group" aria-label="">
+						<button  ng-click="projectAddBegin()" class="text-invert pull-right">New <span class=" glyphicon glyphicon-plus"></span></button>
+					</div>
+					
+					<div class="btn-group btn-group-sm pull-right" role="group" aria-label="sort-projects">
+						<span class="glyphicon glyphicon-sort" style="padding-right:2px;"></span>
+						<button ng-click="sortBy('contact')" type="button" class="">Contact</button>
+						<button ng-click="sortBy('name')" class="">Name</button>
+						<button ng-click="sortBy('notes')" type="button" class="">Notes</button>
+					</div>
+				</div>
+				<table class="table">
+					<tbody>
+						<tr ng-repeat="p in projects | orderBy:propertyName:reverse | filter:searchText">
+							<td>
+								<input  type="hidden">
+								<span  >{{p.contact}}</span>
+							</td>
+							<td >{{p.name}}</td>
+							<td >{{p.notes}}</td>
+							<td  class="text-right">{{p.total_hours}}</td>
+							<td>
+								<input  type="hidden">
+								<span ng-click="projectEditBegin(p)" style="cursor:pointer" class="glyphicon glyphicon-pencil"> </span>
+							</td>
+							<td>
+								<span ng-click="deleteProject(p)" style="cursor:pointer" class="glyphicon glyphicon-trash" > </span>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="col-md-4">
+			<div class="panel panel-default" id="entries_container" ng-controller="myEntries">
+				<div class="panel-heading">
+					<div class="panel-title" style="display:inline;">Time Entries</div>
+					<div class="btn-group btn-group-sm pull-right" role="group" aria-label="sort-entries">
+						<span class="glyphicon glyphicon-sort" style="padding-right:2px;"></span>
+						<button ng-click="sortBy('project_name')" type="button" class="">Project</button>
+						<button ng-click="sortBy('start')" type="button" class="">Start</button>
+						<button ng-click="sortBy('delta')" type="button" class="">Duration</button>
+					</div>
+				</div>
+				<table class="table">
+					<tbody>
+					<tr ng-repeat="x in entries | orderBy:propertyName:reverse | filter:searchText ">
+						<td >{{x.project_name}}</td>
+						<td >{{x.start}}</td>
+						<td >{{x.stop}}</td>
+						<td class="text-right" >{{x.delta}}</td>
+					</tr>
+					<tr><td colspan=4 class="text-right" ng-bind="total"></td></tr>
+				</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div><!-- container fluid Tabs Data -->
+
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-sm-12">
+		</div>
+	</div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Project Modals -->
+<!--
+<div id="editProject" class="modal fade" tabindex="1" role="dialog" aria-labelledby="editDialogLabel" aria-hidden="true">
+	<div class="modal-dialog">
+	<div class="modal-dialog modal-content">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+		<h3 id="editDialogLabel">Edit Project</h3>
+	</div>
+	<div class="modal-body">
+		<form class="form-horizontal">
+			<div class="control-group">
+				<input type="hidden" ></input>
+				<select class="form-control" >
+				</select>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="inputContactEmail">Project Name</label>
+				<input class="form-control"  type="text">
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="inputContactName">Notes</label>
+				<textarea class="form-control" ></textarea>
+			</div>
+		</form>
+		<div class="modal-footer">
+			<button  class="btn btn-primary pull-right">Save</button>
+			<button data-dismiss="modal" aria-hidden="true" class="btn btn-secondary">Cancel</button>&nbsp;&nbsp;&nbsp;
+		</div>
+	</div>
+	</div>
+	</div>
+</div><!end Project Modals -->
+</div>
+{% endraw %}
+{% endblock %}
+

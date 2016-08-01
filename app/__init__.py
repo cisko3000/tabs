@@ -177,6 +177,14 @@ def create_app():
 	def tabs_admin():
 		from datetime import datetime
 		return render_template('tabs_admin.html', dtime = datetime.now().time())
+
+
+	@app.route('/tabs_admin_ng', methods=['GET'])
+	@login_required
+	def tabs_admin_ng():
+		from datetime import datetime
+		return render_template('tabs_admin_ng.html', dtime = datetime.now().time())
+
 	@app.route('/', methods=['GET','POST'])
 	@login_required
 	def home():

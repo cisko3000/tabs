@@ -3,6 +3,11 @@ TABS (Time And Billing System)
 ######Flask based system for project time tracking and invoice creation
 ------------------------------------------------------------------
 # Bugs
+TODO
+Update project contacts menu
+Add project doesn't work
+Deselects project on start and stop
+
 
 # Features
 * Contacts, Projects, Time Entries

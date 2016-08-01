@@ -1,0 +1,33 @@
+<!--<div id="addProject" class="modal fade" xtabindex="1" role="dialog" aria-labelledby="addDialogLabel" aria-hidden="true">-->
+	<div class="modal-dialog">
+	<div class="modal-dialog modal-content">
+	<div class="modal-header">
+		<button ng-click="cancel()" type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+		<h3 id="addDialogLabel">Add Project</h3>
+	</div>
+	<div class="modal-body">
+		<form class="form-horizontal">
+			<div class="control-group">
+				<label class="control-label" for="inputContactName">Project Contact</label>
+				<select class="form-control"
+				ng-options="c as c.name for c in data.contactsList track by c.id"
+				ng-model="data.selected">
+				</select>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="inputContactEmail">Project Name</label>
+				<input ng-model="data.project_name" class="form-control"  type="text">
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="inputContactName">Notes</label>
+				<textarea ng-model="data.project_notes" class="form-control"  id="inputContactNotes"></textarea>
+			</div>
+		</form>
+		<div class="modal-footer">
+			<button  ng-click="addProject()" class="btn btn-primary pull-right">{{ data.confirmLabel }}</button>
+			<button ng-click="cancel()" data-dismiss="modal" aria-hidden="true" class="btn btn-secondary">Cancel</button>&nbsp;&nbsp;&nbsp;
+		</div>
+	</div>
+	</div>
+	</div>
+</div>

@@ -172,7 +172,7 @@ class ProjectList(Resource):
 	def post(self):
 		args = parser.parse_args()
 		p = Project()
-		p.contact_id = args['project_contact']
+		p.contact_id = args['project_contact_id']
 		p.name  = args['project_name']
 		p.notes = args['project_notes']
 		db.session.add(p)
